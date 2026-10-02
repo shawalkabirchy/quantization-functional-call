@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets (never commit tokens)
+.env
+*.token
+
+# Model weights and caches
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.pth
+hf_cache/
+models/
+
+# Large raw outputs (summaries in results/ are committed)
+results/raw/
+wandb/
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,228 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\studentname}{Shawal Kabir Chy.}
+
+\linespread{1.05}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection.}{0.5em}{}
+\setlist[itemize]{topsep=4pt,itemsep=3pt,parsep=0pt,leftmargin=*}
+\setlist[enumerate]{topsep=4pt,itemsep=3pt,parsep=0pt,leftmargin=*}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\pagestyle{plain}
+
+\begin{document}
+
+{\centering\LARGE\bfseries Project Roadmap\par}
+\vspace{6pt}
+{\centering\large Silent Tool-Call Failures: How Quantization Degrades Function Calling\\
+and Structured Output in Small LLMs\par}
+\vspace{12pt}
+{\centering
+\begin{tabular}{rl}
+\textbf{Course:}     & CSE498R Directed Research \\
+\textbf{Supervisor:} & MSRB \\
+\textbf{Student:}    & \studentname \\
+\textbf{Repository:} & \href{https://github.com/shawalkabirchy/quantization-functional-call}{\texttt{github.com/shawalkabirchy/quantization-functional-call}} \\
+\textbf{Timeline:}   & 4 October -- 2 December 2026 (9 weeks) \\
+\end{tabular}\par}
+\vspace{6pt}
+
+% -------------------------------------------------------------------
+\section{Overview}
+
+The project runs for nine weeks, from 4 October to 2 December 2026, and ends with a complete paper
+and a public code release. Work is pushed to the repository continuously, with two formal updates
+each week, presented in person in the supervisor's office every Monday and Wednesday at 4:00 pm
+(Bangladesh time), 18 in total. Each update is pushed before the meeting, adds a dated entry to
+\texttt{UPDATES.md} and includes at least one concrete result: a table, a figure, or working code.
+New experiments stop on 22 November, leaving the final two weeks for writing and release.
+
+A Monday update follows about five working days, including the weekend, while a Wednesday update
+follows only two. New code and GPU-heavy runs are therefore scheduled before Monday meetings, and
+analysis, plotting and writing before Wednesday meetings.
+
+% -------------------------------------------------------------------
+\section{Scope: Core and Stretch}
+
+The original proposal covers nine models, five precisions, a KV-cache quantization axis, four
+benchmarks, constrained decoding and a verifier. That is more than nine weeks allow, so the work is
+split into a \emph{core} that the paper requires and \emph{stretch} items attempted only if time
+remains.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{LL}
+\toprule
+\textbf{Core (required for the paper)} & \textbf{Stretch (only if time allows)} \\
+\midrule
+BFCL v4 AST categories, plus relevance and irrelevance detection & API-Bank, ToolACE \\
+Qwen2.5-1.5B/3B/7B-Instruct, Llama-3.2-1B/3B-Instruct (xLAM-2-1b if time) & Phi-4-mini, Hammer2.1, xLAM-2-8b \\
+FP16, INT8, NF4, GPTQ-4bit, AWQ-4bit & INT8/INT4 KV-cache quantization \\
+Syntactic vs.\ semantic failure taxonomy & Log-probability + self-check verifier \\
+Constrained vs.\ unconstrained decoding (headline result) & Full 400-case stress suite \\
+Schema-stress suite, about 150 cases & \\
+Memory and latency recorded for every run & \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The core alone is 5 models $\times$ 5 precisions $\times$ 2 decoding modes $=$ 50 evaluation runs,
+which fits the timeline.
+
+% -------------------------------------------------------------------
+\section{Week-1 Prerequisites}
+
+\begin{itemize}
+  \item \textbf{GPU access.} No lab GPU is available, and vLLM does not run natively on Windows.
+        All experiments therefore run on Kaggle (free, about 30 GPU-hours per week, 2$\times$ T4),
+        with Google Colab as backup. The 7B model in FP16 (about 15\,GB) is split across both T4s.
+        T4 GPUs do not support BF16, so FP16 serves as the full-precision baseline, and the paper
+        states this.
+  \item \textbf{Novelty check.} The paper's main claim is that no peer-reviewed study measures
+        quantization against function calling. Search arXiv and Google Scholar again in week 1 for
+        anything published in recent months, and record the findings in
+        \texttt{notes/related\_work.md}.
+\end{itemize}
+
+% -------------------------------------------------------------------
+\section{Weekly Plan}
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{1.7cm}LL@{}}
+\toprule
+\textbf{Wk} & \textbf{Dates} & \textbf{Update A (Monday)} & \textbf{Update B (Wednesday)} \\
+\midrule
+1 & 4--10 Oct &
+  Repository set up: README, ROADMAP, UPDATES log, related-work notes, core/stretch scope agreed &
+  BFCL running end-to-end on one model in FP16, with a score close to its leaderboard value \\
+2 & 11--17 Oct &
+  Own evaluation script that saves every raw model output and scores it with BFCL's AST checker;
+  configs for all models &
+  FP16 baselines for all core models \\
+3 & 18--24 Oct &
+  INT8 and NF4 (bitsandbytes) runs; 4-bit checkpoints prepared (official Qwen2.5 GPTQ/AWQ; Llama
+  quantized with llm-compressor/GPTQModel or trusted community checkpoints) &
+  GPTQ and AWQ runs $\rightarrow$ \textbf{first main results table} \\
+4 & 25--31 Oct &
+  Failure classifier: BFCL error types sorted into syntactic (unparseable output, schema or type
+  violation) and semantic (wrong function, wrong value, hallucinated or missing parameter, tool
+  call on an irrelevant query) &
+  \textbf{Midpoint:} first key figure (accuracy drop by precision and model size) with
+  significance tests; paper outline in \texttt{paper/} \\
+5 & 1--7 Nov &
+  Constrained decoding (vLLM structured outputs with each tool's JSON schema) on all runs; Setup
+  section drafted &
+  \textbf{Headline result:} how much of the quantization penalty constrained decoding removes, and
+  which semantic errors remain \\
+6 & 8--14 Nov &
+  Schema-stress suite v1 (about 150 template-generated cases: nested objects, enums,
+  integer vs.\ float, optional fields, unicode, 50-tool menus); Introduction drafted &
+  Stress-suite results broken down by failure type; Related Work section \\
+7 & 15--21 Nov &
+  One stretch item; latency benchmark &
+  Accuracy vs.\ memory and latency curve; Method section \\
+8 & 22--28 Nov &
+  \textbf{Experiment freeze (22 Nov)}; all figures final; Results, Discussion and Limitations &
+  Full paper draft to supervisor \\
+9 & 29 Nov -- 2 Dec &
+  Revisions from supervisor feedback; release preparation &
+  Final paper submitted; release with reproduction steps, results and stress suite; tag
+  \texttt{v1.0} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Midpoint checkpoint (28 October).} If the baselines are not finished by the end of week 4,
+drop the stretch items immediately and protect week 5 (constrained decoding) and week 8 (writing).
+
+% -------------------------------------------------------------------
+\section{Update Protocol}
+
+\begin{itemize}
+  \item \textbf{Push before every meeting}, by 12:00 noon on Monday and Wednesday, so the update is
+        on GitHub before the 4:00 pm meeting. After each meeting, record the supervisor's feedback
+        and action items in \texttt{notes/meetings.md}.
+  \item \textbf{Commit small and often} with clear messages, so the history shows steady progress
+        rather than one large push.
+  \item \textbf{Keep \texttt{UPDATES.md}}, a dated log with the newest entry on top. Each entry has
+        four fields: Done, Result (a number or a plot), Problem, Next. Example:
+\begin{verbatim}
+## 2026-10-07 (Update 2)
+Done:    BFCL AST evaluation runs end-to-end on Qwen2.5-1.5B-Instruct (FP16)
+Result:  simple XX.X%, multiple XX.X% (leaderboard: XX.X%)
+Problem: <what blocked progress, if anything>
+Next:    evaluation script with raw-output logging; all FP16 baselines
+\end{verbatim}
+  \item \textbf{Track the plan in GitHub Issues and Milestones}, one milestone per week, and close
+        issues as they are finished.
+  \item \textbf{Show something concrete in every update.} ``Read papers'' is a weak update;
+        ``related-work table of 12 papers and the gap this project fills'' is a strong one.
+\end{itemize}
+
+% -------------------------------------------------------------------
+\section{Repository Structure}
+
+\begin{verbatim}
+quantization-functional-call/
+|-- README.md          problem, status, how to reproduce
+|-- ROADMAP.md         this plan, with checkboxes
+|-- UPDATES.md         dated progress log
+|-- configs/           one YAML per model x precision
+|-- src/
+|   |-- run_eval.py    generation (vLLM), constrained decoding on/off
+|   |-- score.py       BFCL AST checker wrapper
+|   `-- taxonomy.py    error -> syntactic / semantic class
+|-- data/stress_suite/
+|-- results/           summary CSVs and figures (no model weights)
+|-- notebooks/         analysis and plotting
+|-- notes/             related work, design decisions, meeting notes
+|-- docs/              proposal and this roadmap
+`-- paper/             LaTeX source
+\end{verbatim}
+
+A \texttt{.gitignore} keeps model weights, caches and large raw outputs out of the repository.
+The Hugging Face access token is never committed.
+
+% -------------------------------------------------------------------
+\section{Working Practices}
+
+\begin{itemize}
+  \item \textbf{Write the paper alongside the experiments.} Related-work notes start in week 1, the
+        outline in week 4, and one section is drafted every few days from week 5, so the final
+        weeks are for revision rather than first drafts.
+  \item \textbf{Make every run reproducible from day one.} Use greedy decoding (temperature 0) and a
+        fixed seed, and record the exact model revision and library versions in each results file.
+  \item \textbf{Save raw model outputs, not only scores.} The failure taxonomy and the
+        constrained-decoding analysis both depend on them, and re-running costs GPU hours.
+\end{itemize}
+
+% -------------------------------------------------------------------
+\section{Key Dates}
+
+\begin{itemize}[label=$\square$]
+  \item 7 Oct --- BFCL reproduced on one model (FP16)
+  \item 14 Oct --- FP16 baselines for all core models
+  \item 21 Oct --- First main results table (all precisions)
+  \item 28 Oct --- Midpoint: key figure and paper outline
+  \item 4 Nov --- Headline result: the constrained-decoding gap
+  \item 11 Nov --- Schema-stress suite results
+  \item 22 Nov --- Experiment freeze
+  \item 25 Nov --- Full paper draft to supervisor
+  \item 2 Dec --- Final paper and \texttt{v1.0} release
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,110 @@
+% -------------------------------------------------------------------
+% PAGE-LENGTH KNOBS - tuned to fill about two A4 pages.
+%   Ends too early on page 2 -> raise \linespread to 1.1 or 1.15,
+%                               or raise the geometry margin to 1.15in.
+%   Spills onto page 3       -> lower \linespread to 0.95,
+%                               or lower the geometry margin to 0.9in.
+% -------------------------------------------------------------------
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+\linespread{1.0}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titleformat{\section}{\normalfont\Large\bfseries}{}{0pt}{}
+\setlist[itemize]{topsep=5pt,itemsep=4pt,parsep=0pt,leftmargin=*}
+\setlist[enumerate]{topsep=5pt,itemsep=4pt,parsep=0pt,leftmargin=*}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+\pagestyle{empty}
+
+\begin{document}
+
+{\centering\huge\bfseries Silent Tool-Call Failures\par}
+\vspace{8pt}
+{\centering\Large How Quantization Degrades Function Calling and Structured Output in Small LLMs\par}
+\vspace{18pt}
+
+\section*{The Idea}
+
+Local and on-premise agents run quantized models, almost always at 4-bit. Practitioners report a
+characteristic failure: conversational quality looks unchanged, standard benchmark accuracy looks
+unchanged, and yet a JSON field is silently coerced to the wrong type, an enum value drifts, or a
+tool fires with a plausible but incorrect argument. Unlike a badly written sentence, a wrong tool
+argument is a wrong database query, a wrong transaction, or a wrong actuator command.
+
+This project measures how much of that degradation is attributable to quantization, separates
+failures that are syntactic from failures that are semantic, and tests whether the standard fix,
+grammar-constrained decoding, actually addresses the part that matters.
+
+\section*{Datasets and Setup}
+
+\begin{itemize}
+  \item \textbf{Berkeley Function Calling Leaderboard (BFCL v4)}, AST categories: simple, multiple,
+        parallel, parallel-multiple, plus relevance and irrelevance detection. Open source and
+        runnable locally against Hugging Face models.
+  \item \textbf{API-Bank} (Level-1 and Level-2 calls) as a second harness, guarding against
+        benchmark-specific artefacts.
+  \item \textbf{ToolACE}, sampled held-out calls, for a more diverse API surface.
+  \item \textbf{A purpose-built schema-stress suite} of roughly 400 cases, each isolating one failure
+        class: deeply nested objects, enumerated values, float-versus-integer arguments, optional
+        fields, unicode payloads, and menus of fifty candidate tools.
+  \item \textbf{Models:} Qwen2.5-1.5B/3B/7B-Instruct, Llama-3.2-1B/3B-Instruct, xLAM-2-1b/8b,
+        Hammer2.1, Phi-4-mini.
+  \item \textbf{Precisions:} BF16, INT8, NF4, GPTQ-4bit, AWQ-4bit, with INT8/INT4 KV-cache
+        quantization as a second axis.
+\end{itemize}
+
+\section*{Existing Work}
+
+\begin{itemize}
+  \item \textbf{BFCL} (ICML 2025, PMLR 267:48371--48392) is the standard evaluation harness for
+        function calling. It compares models, not numerical precisions.
+  \item \href{https://arxiv.org/abs/2411.13547}{arXiv:2411.13547} (ToolScan) provides an error
+        taxonomy for tool-using models, established at full precision only.
+  \item \href{https://arxiv.org/abs/2607.14181}{arXiv:2607.14181} studies quantization for code
+        generation and finds that methods differ meaningfully in their effect on correctness. This
+        is the nearest analogue in the literature, but the task is different: code is graded by
+        execution, tool calls by argument-level correctness.
+  \item \href{https://arxiv.org/abs/2505.15030}{arXiv:2505.15030} evaluates on-device LLM
+        quantization for accuracy, latency and memory, without examining structured-output validity.
+  \item \href{https://arxiv.org/abs/2604.22985}{arXiv:2604.22985} proposes uncertainty quantification
+        for function calling, supplying a full-precision baseline verifier to compare against.
+  \item Reports of reproducible silent tool-call failures under INT4 KV-cache and W4A16 builds exist
+        only as practitioner write-ups. \textbf{No peer-reviewed study measures quantization against
+        function calling}, which is an unusual gap for an otherwise crowded area.
+\end{itemize}
+
+\section*{Novelty and Contribution}
+
+\begin{enumerate}
+  \item The first systematic study of quantization against tool calling, with a failure taxonomy
+        that separates \emph{syntactic} breakage (invalid JSON, schema violation) from
+        \emph{semantic} breakage (valid schema but wrong tool, wrong argument value, hallucinated
+        parameter, or unnecessary tool use on an irrelevant query).
+  \item The \emph{constrained-decoding gap}. Grammar-constrained decoding is the accepted remedy for
+        malformed output. This work quantifies how much of the quantization penalty it removes,
+        with the expectation that syntactic errors disappear while semantic errors persist. That
+        single measurement is the paper's headline result.
+  \item A scale-asymmetry result. Small models are known to degrade far more than large ones under
+        4-bit quantization. Tool calling should amplify this, because argument generation is
+        low-entropy and unforgiving, which tells practitioners where the safe parameter floor lies.
+  \item Three released artefacts: the schema-stress suite; a cheap call-level verifier combining
+        argument-token log-probability margin with a one-shot self-check, targeting detection of
+        semantic errors before execution at under twenty percent additional token cost; and a
+        reliability-per-gigabyte curve mapping measured memory and latency against call accuracy.
+\end{enumerate}
+
+\section*{Real-World Impact}
+
+Agents deployed on-premise or on-device, including privacy-sensitive enterprise assistants, offline
+mobile assistants and embedded controllers, all run quantized models with tool access. The engineers
+who choose a quantization level for these systems currently rely on chat-quality and general
+reasoning benchmarks that do not measure structured-output reliability at all. This work gives them
+the missing number, an inexpensive pre-execution check for the failures that remain, and evidence
+about which quantization methods are safe for agentic use.
+
+\end{document}
