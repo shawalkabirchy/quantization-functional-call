@@ -68,7 +68,7 @@ remains.
 \textbf{Core (required for the paper)} & \textbf{Stretch (only if time allows)} \\
 \midrule
 BFCL v4 AST categories, plus relevance and irrelevance detection & API-Bank, ToolACE \\
-Qwen2.5-1.5B/3B/7B-Instruct, Llama-3.2-1B/3B-Instruct (xLAM-2-1b if time) & Phi-4-mini, Hammer2.1, xLAM-2-8b \\
+Qwen3-1.7B/4B/8B (thinking off), Llama-3.2-1B/3B-Instruct & Qwen3-0.6B, Phi-4-mini, xLAM-2-1b/8b \\
 FP16, INT8, NF4, GPTQ-4bit, AWQ-4bit & INT8/INT4 KV-cache quantization \\
 Syntactic vs.\ semantic failure taxonomy & Log-probability + self-check verifier \\
 Constrained vs.\ unconstrained decoding (headline result) & Full 400-case stress suite \\
@@ -87,7 +87,7 @@ which fits the timeline.
 \begin{itemize}
   \item \textbf{GPU access.} No lab GPU is available, and vLLM does not run natively on Windows.
         All experiments therefore run on Kaggle (free, about 30 GPU-hours per week, 2$\times$ T4),
-        with Google Colab as backup. The 7B model in FP16 (about 15\,GB) is split across both T4s.
+        with Google Colab as backup. The 8B model in FP16 (about 16\,GB) is split across both T4s.
         T4 GPUs do not support BF16, so FP16 serves as the full-precision baseline, and the paper
         states this.
   \item \textbf{Novelty check.} The paper's main claim is that no peer-reviewed study measures
@@ -114,8 +114,8 @@ which fits the timeline.
   configs for all models &
   FP16 baselines for all core models \\
 3 & 18--24 Oct &
-  INT8 and NF4 (bitsandbytes) runs; 4-bit checkpoints prepared (official Qwen2.5 GPTQ/AWQ; Llama
-  quantized with llm-compressor/GPTQModel or trusted community checkpoints) &
+  INT8 and NF4 (bitsandbytes) runs; GPTQ and AWQ 4-bit checkpoints made for every model with one
+  recipe (llm-compressor or GPTQModel) &
   GPTQ and AWQ runs $\rightarrow$ \textbf{first main results table} \\
 4 & 25--31 Oct &
   Failure classifier: BFCL error types sorted into syntactic (unparseable output, schema or type
@@ -162,7 +162,7 @@ drop the stretch items immediately and protect week 5 (constrained decoding) and
         four fields: Done, Result (a number or a plot), Problem, Next. Example:
 \begin{verbatim}
 ## 2026-10-07 (Update 2)
-Done:    BFCL AST evaluation runs end-to-end on Qwen2.5-1.5B-Instruct (FP16)
+Done:    BFCL AST evaluation runs end-to-end on Qwen3-4B-Instruct-2507 (FP16)
 Result:  simple XX.X%, multiple XX.X% (leaderboard: XX.X%)
 Problem: <what blocked progress, if anything>
 Next:    evaluation script with raw-output logging; all FP16 baselines

@@ -34,7 +34,7 @@ grammar-constrained decoding, removes the failures that matter.
 | | Core | Stretch (if time allows) |
 |---|---|---|
 | **Benchmarks** | BFCL v4 AST categories (simple, multiple, parallel, parallel-multiple, irrelevance); schema-stress suite (~150 cases) | API-Bank, ToolACE |
-| **Models** | Qwen2.5-1.5B/3B/7B-Instruct, Llama-3.2-1B/3B-Instruct | Phi-4-mini, xLAM-2-1b |
+| **Models** | Qwen3-1.7B/4B/8B (thinking mode off), Llama-3.2-1B/3B-Instruct | Qwen3-0.6B, Phi-4-mini, xLAM-2-1b |
 | **Precisions** | FP16 (baseline), INT8, NF4, GPTQ-4bit, AWQ-4bit | KV-cache quantization |
 | **Decoding** | Free generation vs. JSON-schema-constrained decoding | |
 | **Extras** | Accuracy vs. memory and latency | Pre-execution verifier |
