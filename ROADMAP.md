@@ -7,7 +7,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 1 (4-10 Oct): Setup and reproduction
 - [x] **Update 1 (Mon 5 Oct):** repository setup: README, roadmap, progress log, related-work notes
-- [ ] **Update 2 (Wed 7 Oct):** BFCL reproduced on Qwen3-4B-Instruct-2507 (FP16, prompt and FC modes) and compared with the leaderboard; related work grown to 12+ papers
+- [x] **Update 2 (Wed 7 Oct):** BFCL reproduced on Qwen3-4B-Instruct-2507 (FP16, prompt and FC modes) and compared with the leaderboard; related work grown to 12+ papers
 
 ## Week 2 (11-17 Oct): Evaluation script and baselines
 - [ ] **Update 3 (Mon 12 Oct):** own evaluation script (raw outputs saved, scored with BFCL's AST checker); configs for all models

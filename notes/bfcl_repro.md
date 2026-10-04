@@ -45,6 +45,8 @@
 - **Complete run.** All 2,780 requests (1,390 per mode) were answered, with no failed requests.
 - **Sampling is near-greedy, not greedy.** vLLM logged the temperature clamp on every request.
   Because BFCL sends only the temperature, vLLM fills in the model's recommended top-k 20 and top-p 0.8.
+  BFCL's own vLLM launch does not override these defaults either, so this matches BFCL's standard
+  local setup.
   Our own evaluation script (Update 3) should set every decoding parameter explicitly, so that precision
   is the only thing that changes between runs.
 - **Runtime.** The server was ready about 2 minutes after launch. Generating both modes took about

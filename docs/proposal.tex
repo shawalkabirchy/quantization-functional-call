@@ -7,12 +7,13 @@
 % -------------------------------------------------------------------
 \documentclass[12pt,a4paper]{article}
 \usepackage[T1]{fontenc}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=0.9in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
 
-\linespread{1.0}
+\linespread{0.95}
+\emergencystretch=2em
 \titlespacing*{\section}{0pt}{14pt}{6pt}
 \titleformat{\section}{\normalfont\Large\bfseries}{}{0pt}{}
 \setlist[itemize]{topsep=5pt,itemsep=4pt,parsep=0pt,leftmargin=*}
@@ -43,67 +44,82 @@ grammar-constrained decoding, actually addresses the part that matters.
 \section*{Datasets and Setup}
 
 \begin{itemize}
-  \item \textbf{Berkeley Function Calling Leaderboard (BFCL v4)}, AST categories: simple, multiple,
-        parallel, parallel-multiple, plus relevance and irrelevance detection. Open source and
-        runnable locally against Hugging Face models.
-  \item \textbf{API-Bank} (Level-1 and Level-2 calls) as a second harness, guarding against
-        benchmark-specific artefacts.
-  \item \textbf{ToolACE}, sampled held-out calls, for a more diverse API surface.
-  \item \textbf{A purpose-built schema-stress suite} of roughly 400 cases, each isolating one failure
+  \item \textbf{Berkeley Function Calling Leaderboard (BFCL v4)}, non-live AST categories (simple,
+        multiple, parallel, parallel-multiple, irrelevance), reproduced on a Kaggle T4 in FP16 to
+        within one question per category of the leaderboard.
+  \item \textbf{A purpose-built schema-stress suite} of roughly 150 cases, each isolating one failure
         class: deeply nested objects, enumerated values, float-versus-integer arguments, optional
         fields, unicode payloads, and menus of fifty candidate tools.
-  \item \textbf{Models:} Qwen2.5-1.5B/3B/7B-Instruct, Llama-3.2-1B/3B-Instruct, xLAM-2-1b/8b,
-        Hammer2.1, Phi-4-mini.
-  \item \textbf{Precisions:} BF16, INT8, NF4, GPTQ-4bit, AWQ-4bit, with INT8/INT4 KV-cache
-        quantization as a second axis.
+  \item \textbf{API-Bank} (Level-1 and Level-2 calls) and \textbf{ToolACE} as second harnesses if
+        time allows, guarding against benchmark-specific artefacts.
+  \item \textbf{Models:} Qwen3-1.7B/4B/8B (thinking mode off) and Llama-3.2-1B/3B-Instruct;
+        Qwen3-0.6B, Phi-4-mini and xLAM-2-1b if time allows.
+  \item \textbf{Precisions:} FP16 (baseline; T4 GPUs lack BF16), INT8, NF4, GPTQ-4bit and AWQ-4bit,
+        each with free and JSON-schema-constrained decoding; KV-cache quantization as a stretch axis.
 \end{itemize}
 
 \section*{Existing Work}
 
 \begin{itemize}
-  \item \textbf{BFCL} (ICML 2025, PMLR 267:48371--48392) is the standard evaluation harness for
-        function calling. It compares models, not numerical precisions.
-  \item \href{https://arxiv.org/abs/2411.13547}{arXiv:2411.13547} (ToolScan) provides an error
-        taxonomy for tool-using models, established at full precision only.
-  \item \href{https://arxiv.org/abs/2607.14181}{arXiv:2607.14181} studies quantization for code
-        generation and finds that methods differ meaningfully in their effect on correctness. This
-        is the nearest analogue in the literature, but the task is different: code is graded by
-        execution, tool calls by argument-level correctness.
-  \item \href{https://arxiv.org/abs/2505.15030}{arXiv:2505.15030} evaluates on-device LLM
-        quantization for accuracy, latency and memory, without examining structured-output validity.
-  \item \href{https://arxiv.org/abs/2604.22985}{arXiv:2604.22985} proposes uncertainty quantification
-        for function calling, supplying a full-precision baseline verifier to compare against.
-  \item Reports of reproducible silent tool-call failures under INT4 KV-cache and W4A16 builds exist
-        only as practitioner write-ups. \textbf{No peer-reviewed study measures quantization against
-        function calling}, which is an unusual gap for an otherwise crowded area.
+  \item \textbf{BFCL} (ICML 2025, PMLR 267:48371--48392) is the standard function-calling harness;
+        it compares models, not precisions. ToolScan
+        (\href{https://arxiv.org/abs/2411.13547}{arXiv:2411.13547}) characterises tool-use errors at
+        full precision only.
+  \item \textbf{Quantization and tool calling.} ACBench (ICML 2025,
+        \href{https://arxiv.org/abs/2505.19433}{arXiv:2505.19433}) finds that 4-bit GPTQ and AWQ cost
+        only 1--3\% on tool-use benchmarks, with JSON output hit harder than plain text. Less is More
+        (DATE 2025, \href{https://arxiv.org/abs/2411.15399}{arXiv:2411.15399}) reports BFCL drops of
+        19--43 points for Llama-3.1-8B in Ollama builds, against a baseline on another serving stack. Wu et al. (\href{https://arxiv.org/abs/2608.06564}{arXiv:2608.06564})
+        show that at 3 and 2 bits the decision \emph{whether} to call a tool flips first. Jang et al.
+        (\href{https://arxiv.org/abs/2607.27275}{arXiv:2607.27275}) find 4-bit $\tau^2$-bench scores
+        flat while tool-name hallucinations grow up to 2.5$\times$, in 9--35B models where malformed
+        calls almost never occur.
+  \item \textbf{Constrained decoding} removes structural failures in 0.5--4B models at full precision,
+        while semantic errors remain or grow
+        (\href{https://arxiv.org/abs/2605.26128}{arXiv:2605.26128},
+        \href{https://arxiv.org/abs/2609.23742}{arXiv:2609.23742}). The only test under quantization
+        we found, the unpublished QuantCliff study (GitHub, August 2026), saw a JSON-schema grammar
+        remove every malformed output yet leave task success unchanged in 9 of 11 configurations.
+  \item Quantization studies of code generation
+        (\href{https://arxiv.org/abs/2607.14181}{arXiv:2607.14181}) and on-device deployment
+        (\href{https://arxiv.org/abs/2505.15030}{arXiv:2505.15030}) do not check argument-level
+        correctness; \href{https://arxiv.org/abs/2604.22985}{arXiv:2604.22985} offers a
+        full-precision function-call verifier to compare against.
+  \item \textbf{The gap.} Prior work reports aggregate scores, decision flips, or large models in
+        multi-turn episodes. We found no study that separates syntactic from semantic failures for
+        small models across the common precisions, or that tests at scale whether constrained
+        decoding removes the quantization penalty or only relabels it.
 \end{itemize}
 
 \section*{Novelty and Contribution}
 
 \begin{enumerate}
-  \item The first systematic study of quantization against tool calling, with a failure taxonomy
-        that separates \emph{syntactic} breakage (invalid JSON, schema violation) from
-        \emph{semantic} breakage (valid schema but wrong tool, wrong argument value, hallucinated
-        parameter, or unnecessary tool use on an irrelevant query).
-  \item The \emph{constrained-decoding gap}. Grammar-constrained decoding is the accepted remedy for
-        malformed output. This work quantifies how much of the quantization penalty it removes,
-        with the expectation that syntactic errors disappear while semantic errors persist. That
-        single measurement is the paper's headline result.
-  \item A scale-asymmetry result. Small models are known to degrade far more than large ones under
-        4-bit quantization. Tool calling should amplify this, because argument generation is
-        low-entropy and unforgiving, which tells practitioners where the safe parameter floor lies.
+  \item \textbf{A failure breakdown for small models.} Five precisions on the full BFCL non-live
+        AST set for 1--8B models, with the same prompts, scoring and decoding settings at
+        every precision, and a failure taxonomy that separates \emph{syntactic} breakage (invalid
+        JSON, schema violation) from \emph{semantic} breakage (valid schema but wrong tool, wrong
+        argument value, hallucinated parameter, or unnecessary tool use on an irrelevant query).
+  \item \textbf{The constrained-decoding test.} Grammar-constrained decoding is the accepted remedy
+        for malformed output, but at full precision it trades structural failures for semantic ones,
+        and one small unpublished test suggests the same under quantization. This work measures, on
+        the full benchmark with paired significance tests, how much of the quantization penalty it
+        removes and how much it only converts into wrong-but-valid calls: the paper's headline result.
+  \item \textbf{A scale-asymmetry result.} Small models are known to degrade more than large ones
+        under 4-bit quantization, and malformed tool calls are almost absent in 9--35B models.
+        Measuring syntactic and semantic error rates from 1B to 8B shows at what size the damage
+        starts, which tells practitioners where the safe parameter floor lies.
   \item Three released artefacts: the schema-stress suite; a cheap call-level verifier combining
         argument-token log-probability margin with a one-shot self-check, targeting detection of
         semantic errors before execution at under twenty percent additional token cost; and a
-        reliability-per-gigabyte curve mapping measured memory and latency against call accuracy.
+        reliability-per-gigabyte curve of call accuracy against memory and latency.
 \end{enumerate}
 
 \section*{Real-World Impact}
 
 Agents deployed on-premise or on-device, including privacy-sensitive enterprise assistants, offline
 mobile assistants and embedded controllers, all run quantized models with tool access. The engineers
-who choose a quantization level for these systems currently rely on chat-quality and general
-reasoning benchmarks that do not measure structured-output reliability at all. This work gives them
+who choose a quantization level for these systems mostly rely on chat-quality and general
+reasoning benchmarks, which say little about structured-output reliability. This work gives them
 the missing number, an inexpensive pre-execution check for the failures that remain, and evidence
 about which quantization methods are safe for agentic use.
 
