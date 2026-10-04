@@ -1,0 +1,17 @@
+Model,Category,"Ours (FP16, T4)",Leaderboard,Difference
+Qwen3-4B-Instruct-2507 (Prompt),Non-Live Overall Acc,86.31,86.44,-0.13
+Qwen3-4B-Instruct-2507 (Prompt),Python Simple AST,93.75,93.75,0.0
+Qwen3-4B-Instruct-2507 (Prompt),Java Simple AST,64.0,64.0,0.0
+Qwen3-4B-Instruct-2507 (Prompt),JavaScript Simple AST,74.0,74.0,0.0
+Qwen3-4B-Instruct-2507 (Prompt),Multiple AST,91.0,91.0,0.0
+Qwen3-4B-Instruct-2507 (Prompt),Parallel AST,88.0,88.0,0.0
+Qwen3-4B-Instruct-2507 (Prompt),Parallel Multiple AST,89.0,89.5,-0.5
+Qwen3-4B-Instruct-2507 (Prompt),Irrelevance Detection,84.58,85.0,-0.42
+Qwen3-4B-Instruct-2507 (FC),Non-Live Overall Acc,87.81,87.88,-0.07
+Qwen3-4B-Instruct-2507 (FC),Python Simple AST,95.25,95.5,-0.25
+Qwen3-4B-Instruct-2507 (FC),Java Simple AST,63.0,63.0,0.0
+Qwen3-4B-Instruct-2507 (FC),JavaScript Simple AST,66.0,68.0,-2.0
+Qwen3-4B-Instruct-2507 (FC),Multiple AST,94.0,93.5,0.5
+Qwen3-4B-Instruct-2507 (FC),Parallel AST,92.5,92.5,0.0
+Qwen3-4B-Instruct-2507 (FC),Parallel Multiple AST,90.0,90.0,0.0
+Qwen3-4B-Instruct-2507 (FC),Irrelevance Detection,88.75,88.75,0.0

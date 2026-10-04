@@ -1,0 +1,16 @@
+{
+  "python": "3.11.17",
+  "bfcl-eval": "2026.3.23",
+  "vllm": "0.8.5",
+  "torch": "2.6.0",
+  "transformers": "4.51.3",
+  "openai": "1.109.1",
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "display_names": {
+    "Qwen/Qwen3-4B-Instruct-2507": "Qwen3-4B-Instruct-2507 (Prompt)",
+    "Qwen/Qwen3-4B-Instruct-2507-FC": "Qwen3-4B-Instruct-2507 (FC)"
+  }
+}
