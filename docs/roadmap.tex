@@ -90,10 +90,13 @@ which fits the timeline.
         with Google Colab as backup. The 8B model in FP16 (about 16\,GB) is split across both T4s.
         T4 GPUs do not support BF16, so FP16 serves as the full-precision baseline, and the paper
         states this.
-  \item \textbf{Novelty check.} The paper's main claim is that no peer-reviewed study measures
-        quantization against function calling. Search arXiv and Google Scholar again in week 1 for
-        anything published in recent months, and record the findings in
-        \texttt{notes/related\_work.md}.
+  \item \textbf{Novelty check (done 5 Oct).} A fresh search of arXiv, Google Scholar and GitHub
+        found earlier work on quantization and tool calling: ACBench (ICML 2025), Less is More
+        (DATE 2025), two 2026 preprints and one GitHub study. They report aggregate scores, decision
+        flips, or large models in multi-turn episodes. The paper's claim is therefore narrower: a
+        syntactic-versus-semantic failure breakdown for 1--8B models across five precisions on one
+        serving stack, and a full-scale test of constrained decoding under quantization. Details
+        are in \texttt{notes/related\_work.md}.
 \end{itemize}
 
 % -------------------------------------------------------------------
