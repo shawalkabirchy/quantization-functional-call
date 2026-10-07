@@ -1,6 +1,6 @@
 # Supervisor Meetings
 
-Meetings with MSRB sir every Monday and Wednesday at 4:00 pm (Bangladesh time).
+Meetings with Dr. Mohammad Shifat-E-Rabbi every Monday and Wednesday at 4:00 pm (Bangladesh time).
 Newest first. Each entry is written right after the meeting.
 
 <!--
