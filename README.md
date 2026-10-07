@@ -2,7 +2,7 @@
 
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
-CSE498R Directed Research · Supervisor: MSRB
+CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
 **Status:** Week 1 of 9: project setup · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
