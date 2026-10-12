@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 1 of 9: project setup · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 2 of 9: evaluation script and FP16 baselines · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -71,6 +71,19 @@ notes/              related work, design decisions
 paper/              paper source (LaTeX)
 docs/               project proposal and roadmap
 ```
+
+## Running an evaluation
+
+GPU runs happen in Kaggle notebooks (see [`notebooks/`](notebooks/)), in a Python 3.11 environment
+with `bfcl-eval==2026.3.23` and vLLM 0.8.5. From the repository root:
+
+```
+python src/run_eval.py --config configs/qwen3-4b_fp16.yaml --mode free   # raw answers -> results/raw/
+python src/score.py results/raw/qwen3-4b_fp16_free.jsonl                # scores -> results/summary.csv
+```
+
+`--mode constrained` forces every answer to match the functions' JSON schema. Every run also saves
+its model revision, software versions, GPU, memory and speed in `results/meta/`.
 
 ## Progress
 

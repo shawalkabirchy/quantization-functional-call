@@ -1,0 +1,18 @@
+# Qwen3-1.7B in FP16, thinking mode off
+model: Qwen/Qwen3-1.7B
+revision: 70d244cc86ccca08cf5af4e1e306ecf908b1ad5e    # Hugging Face commit, pinned on 2026-10-12
+precision: fp16
+dtype: half                  # FP16; T4 GPUs do not support BF16
+quantization: null
+tensor_parallel_size: 1
+max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
+gpu_memory_utilization: 0.90
+chat_template_kwargs: {enable_thinking: false}
+sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+  min_p: 0.0
+  repetition_penalty: 1.0
+  seed: 42
+  max_tokens: 4096           # same answer budget as BFCL
