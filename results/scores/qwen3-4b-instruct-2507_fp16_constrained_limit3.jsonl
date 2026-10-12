@@ -1,0 +1,21 @@
+{"id": "simple_python_0", "category": "simple_python", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_python_1", "category": "simple_python", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_python_2", "category": "simple_python", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_java_0", "category": "simple_java", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_java_1", "category": "simple_java", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": false, "error_type": "type_error:simple", "error": ["Incorrect type for parameter 'params'. Expected type HashMap, got str. Parameter value: '{'."]}
+{"id": "simple_java_2", "category": "simple_java", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_javascript_0", "category": "simple_javascript", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_javascript_1", "category": "simple_javascript", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "simple_javascript_2", "category": "simple_javascript", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": false, "error_type": "value_error:string", "error": ["Invalid value for parameter 'processFunction': 'null'. Expected one of ['processFunction']. Case insensitive."]}
+{"id": "multiple_0", "category": "multiple", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "multiple_1", "category": "multiple", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "multiple_2", "category": "multiple", "parse_ok": true, "parse_error": null, "n_calls": 1, "valid": true, "error_type": null, "error": null}
+{"id": "parallel_0", "category": "parallel", "parse_ok": true, "parse_error": null, "n_calls": 2, "valid": true, "error_type": null, "error": null}
+{"id": "parallel_1", "category": "parallel", "parse_ok": true, "parse_error": null, "n_calls": 2, "valid": true, "error_type": null, "error": null}
+{"id": "parallel_2", "category": "parallel", "parse_ok": true, "parse_error": null, "n_calls": 2, "valid": true, "error_type": null, "error": null}
+{"id": "parallel_multiple_0", "category": "parallel_multiple", "parse_ok": true, "parse_error": null, "n_calls": 2, "valid": true, "error_type": null, "error": null}
+{"id": "parallel_multiple_1", "category": "parallel_multiple", "parse_ok": true, "parse_error": null, "n_calls": 2, "valid": true, "error_type": null, "error": null}
+{"id": "parallel_multiple_2", "category": "parallel_multiple", "parse_ok": true, "parse_error": null, "n_calls": 3, "valid": false, "error_type": "parallel_function_checker_no_order:wrong_count", "error": ["Wrong number of functions."]}
+{"id": "irrelevance_0", "category": "irrelevance", "parse_ok": true, "parse_error": null, "n_calls": 0, "valid": true, "error_type": null, "error": null}
+{"id": "irrelevance_1", "category": "irrelevance", "parse_ok": true, "parse_error": null, "n_calls": 0, "valid": true, "error_type": null, "error": null}
+{"id": "irrelevance_2", "category": "irrelevance", "parse_ok": true, "parse_error": null, "n_calls": 0, "valid": true, "error_type": null, "error": null}

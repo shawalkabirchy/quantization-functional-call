@@ -5,6 +5,34 @@ meeting.
 
 ---
 
+## 2026-10-12 (Update 3)
+
+**Done:**
+- Our own evaluation script: [`src/run_eval.py`](src/run_eval.py) runs a model with vLLM in free or
+  JSON-schema-constrained mode and saves every raw answer, plus the model revision, software versions,
+  GPU, memory and speed; [`src/score.py`](src/score.py) scores the answers with BFCL's own AST checker.
+  Design choices (prompt format, greedy decoding, strict parser) are in
+  [`notes/decisions.md`](notes/decisions.md)
+- Scorer checked against BFCL without a GPU: re-scoring the 1,390 Update 2 answers gives BFCL's verdict
+  on every question ([`src/check_scorer.py`](src/check_scorer.py))
+- Sanity check on Kaggle ([notebook](notebooks/02_eval_sanity_check.ipynb),
+  [report](notes/eval_sanity_check.md), [scores](results/summary.csv))
+- One config per model in [`configs/`](configs/), each pinned to a Hugging Face commit;
+  [compute log](notes/compute_log.md) started
+
+**Result:** The script works. On Qwen3-4B-Instruct-2507 (FP16, one T4) it scores 89.29% overall
+(BFCL's Non-Live Overall Acc), against 87.81% (FC mode) and 86.31% (prompt mode) for BFCL's own
+harness: 1.48 points from the closer run. Only 9 of 1,390 answers were invalid JSON, all in Java and
+JavaScript questions where an argument is a string that contains JSON. Constrained decoding returned
+valid JSON for all 21 test questions.
+
+**Problem:** None. Access to Llama 3.2 has been approved, so the second model family stays as planned.
+
+**Next (Update 4, Wed 14 Oct):** FP16 baselines for all 5 core models (Qwen3-1.7B, 4B and 8B,
+Llama-3.2-1B and 3B).
+
+---
+
 ## 2026-10-05 (Update 2)
 
 **Done:**

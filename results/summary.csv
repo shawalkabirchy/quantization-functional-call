@@ -1,0 +1,17 @@
+run_id,model,precision,mode,category,correct,total,accuracy,parsed_pct,complete
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,simple_python,384,400,96.0,100.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,simple_java,65,100,65.0,96.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,simple_javascript,36,50,72.0,90.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,multiple,188,200,94.0,100.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,parallel,188,200,94.0,100.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,parallel_multiple,183,200,91.5,100.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,irrelevance,206,240,85.83,100.0,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,simple_ast,,,77.67,,True
+qwen3-4b-instruct-2507_fp16_free,Qwen/Qwen3-4B-Instruct-2507,fp16,free,non_live_overall,,,89.29,,True
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,simple_python,3,3,100.0,100.0,False
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,simple_java,2,3,66.67,100.0,False
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,simple_javascript,2,3,66.67,100.0,False
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,multiple,3,3,100.0,100.0,False
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,parallel,3,3,100.0,100.0,False
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,parallel_multiple,2,3,66.67,100.0,False
+qwen3-4b-instruct-2507_fp16_constrained_limit3,Qwen/Qwen3-4B-Instruct-2507,fp16,constrained,irrelevance,3,3,100.0,100.0,False

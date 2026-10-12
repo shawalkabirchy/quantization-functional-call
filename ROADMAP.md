@@ -10,7 +10,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 2 (Wed 7 Oct):** BFCL reproduced on Qwen3-4B-Instruct-2507 (FP16, prompt and FC modes) and compared with the leaderboard; related work grown to 12+ papers
 
 ## Week 2 (11-17 Oct): Evaluation script and baselines
-- [ ] **Update 3 (Mon 12 Oct):** own evaluation script (raw outputs saved, scored with BFCL's AST checker); configs for all models
+- [x] **Update 3 (Mon 12 Oct):** own evaluation script (raw outputs saved, scored with BFCL's AST checker); configs for all models
 - [ ] **Update 4 (Wed 14 Oct):** FP16 baselines for all 5 core models
 
 ## Week 3 (18-24 Oct): Quantization sweep
