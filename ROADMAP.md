@@ -11,7 +11,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 2 (11-17 Oct): Evaluation script and baselines
 - [x] **Update 3 (Mon 12 Oct):** own evaluation script (raw outputs saved, scored with BFCL's AST checker); configs for all models
-- [ ] **Update 4 (Wed 14 Oct):** FP16 baselines for all 5 core models
+- [x] **Update 4 (Wed 14 Oct):** FP16 baselines for all 5 core models
 
 ## Week 3 (18-24 Oct): Quantization sweep
 - [ ] **Update 5 (Mon 19 Oct):** INT8 and NF4 runs; GPTQ/AWQ checkpoints prepared

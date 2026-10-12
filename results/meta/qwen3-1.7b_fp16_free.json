@@ -1,0 +1,87 @@
+{
+  "run_id": "qwen3-1.7b_fp16_free",
+  "config_file": "configs/qwen3-1.7b_fp16.yaml",
+  "config": {
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "precision": "fp16",
+    "dtype": "half",
+    "quantization": null,
+    "tensor_parallel_size": 1,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": -1,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0,
+      "seed": 42,
+      "max_tokens": 4096
+    }
+  },
+  "model": "Qwen/Qwen3-1.7B",
+  "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "precision": "fp16",
+  "mode": "free",
+  "guided_decoding_backend": null,
+  "prompt_format": "json-array-v1",
+  "categories": [
+    "simple_python",
+    "simple_java",
+    "simple_javascript",
+    "multiple",
+    "parallel",
+    "parallel_multiple",
+    "irrelevance"
+  ],
+  "limit_per_category": null,
+  "n_questions": 1390,
+  "sampling_params": "SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=-1, min_p=0.0, seed=42, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=4096, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None)",
+  "started_utc": "2026-10-12T15:02:25+00:00",
+  "finished_utc": "2026-10-12T15:06:25+00:00",
+  "model_load_seconds": 62.5,
+  "generation_seconds": 167.8,
+  "prompt_tokens": 639699,
+  "output_tokens": 70869,
+  "output_tokens_per_second": 422.2,
+  "finish_reasons": {
+    "stop": 1390
+  },
+  "memory": {
+    "model_weights_gib": 3.2152,
+    "activation_peak_gib": 1.42,
+    "kv_cache_gib": 8.43,
+    "gpus_after_run": [
+      {
+        "index": 0,
+        "used_mib": 14109,
+        "total_mib": 15360
+      },
+      {
+        "index": 1,
+        "used_mib": 3,
+        "total_mib": 15360
+      }
+    ]
+  },
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "versions": {
+    "python": "3.11.17",
+    "vllm": "0.8.5",
+    "torch": "2.6.0",
+    "transformers": "4.51.3",
+    "bfcl-eval": "2026.3.23",
+    "xgrammar": "0.1.18"
+  },
+  "code": {
+    "commit": "fc7f9a7ca05177ef551becf5fe0422848531fa5d",
+    "uncommitted_changes": false
+  }
+}

@@ -5,6 +5,39 @@ meeting.
 
 ---
 
+## 2026-10-12 (Update 4)
+
+**Done:**
+- FP16 baselines for all five core models with the Update 3 script (free mode, 1,390 BFCL `non_live`
+  questions each): Qwen3-1.7B, Qwen3-4B and Qwen3-8B (thinking off), Llama-3.2-1B-Instruct and
+  Llama-3.2-3B-Instruct ([notebook](notebooks/03_fp16_baselines.ipynb),
+  [report](results/baseline_fp16.md), [scores](results/summary.csv))
+- Qwen3-8B split across Kaggle's two T4s; the other models use one T4
+- All five runs re-scored on a PC: the same verdict on every question
+
+**Result** (Overall = BFCL's Non-Live Overall Acc, %):
+
+| Model | Overall | Irrelevance | Parsed, AST questions |
+|---|---:|---:|---:|
+| Qwen3-1.7B | 72.56 | 77.92 | 89.48 |
+| Qwen3-4B | 88.04 | 84.58 | 99.83 |
+| Qwen3-8B | 88.29 | 87.08 | 99.91 |
+| Llama-3.2-1B-Instruct | 36.40 | 82.92 | 90.52 |
+| Llama-3.2-3B-Instruct | 31.38 | 91.25 | 52.00 |
+
+Qwen3 gains a lot from 1.7B to 4B and very little from 4B to 8B. Llama-3.2-3B scores below
+Llama-3.2-1B because 503 of its answers leave out the closing `]` of the JSON array, which our strict
+parser counts as a failure (with the `]` added it would score 46.02). Llama-3.2-1B often makes no call
+at all (288 of 1,150 AST questions).
+
+**Problem:** For Qwen3-1.7B and Llama-3.2-3B, format failures are already large at FP16, so for these
+two models a drop after quantization will mix format and content. The failure classifier (Update 7)
+and constrained decoding (Update 9) are planned to separate the two.
+
+**Next (Update 5, Mon 19 Oct):** INT8 and NF4 runs; GPTQ and AWQ checkpoints prepared.
+
+---
+
 ## 2026-10-12 (Update 3)
 
 **Done:**
