@@ -7,7 +7,7 @@ quantization: null
 tensor_parallel_size: 1
 max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
 gpu_memory_utilization: 0.90
-chat_template_kwargs: {}
+chat_template_kwargs: {date_string: "26 Jul 2024"}   # fixed; otherwise the template writes today's date into every prompt
 sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
   temperature: 0.0
   top_p: 1.0

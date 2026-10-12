@@ -7,6 +7,7 @@ quantization: null
 tensor_parallel_size: 2
 max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
 gpu_memory_utilization: 0.90
+llm_kwargs: {disable_custom_all_reduce: true}   # plain NCCL between the two T4s (PCIe, no NVLink)
 chat_template_kwargs: {enable_thinking: false}
 sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
   temperature: 0.0
