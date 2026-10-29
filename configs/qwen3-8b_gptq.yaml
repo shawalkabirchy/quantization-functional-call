@@ -1,0 +1,24 @@
+# Qwen3-8B in GPTQ 4-bit (weights 4-bit, activations FP16, groups of 128), thinking mode off
+model: Qwen/Qwen3-8B
+revision: b968826d9c46dd6066d109eabc6255188de91218    # Hugging Face commit, pinned on 2026-10-12
+precision: gptq
+dtype: half                  # activations and the parts that are not quantized (embeddings, norms) run in FP16
+quantization: gptq           # vLLM's GPTQ kernels (its faster Marlin kernels need a newer GPU than the T4)
+quantize:                    # src/quantize.py makes the checkpoint with GPTQModel (calibration set: CALIBRATION there)
+  method: gptq
+  bits: 4
+  group_size: 128
+  sym: true                  # symmetric, the usual GPTQ setting
+  desc_act: false            # no activation reordering
+tensor_parallel_size: 1      # 4-bit Qwen3-8B fits on one T4 (FP16 needed both)
+max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
+gpu_memory_utilization: 0.90
+chat_template_kwargs: {enable_thinking: false}
+sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+  min_p: 0.0
+  repetition_penalty: 1.0
+  seed: 42
+  max_tokens: 4096           # same answer budget as BFCL

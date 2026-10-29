@@ -1,0 +1,23 @@
+# Llama-3.2-3B-Instruct in AWQ 4-bit (weights 4-bit, activations FP16, groups of 128) (gated: needs HF_TOKEN with approved access)
+model: meta-llama/Llama-3.2-3B-Instruct
+revision: 0cb88a4f764b7a12671c53f0838cd831a0843b95    # Hugging Face commit, pinned on 2026-10-12
+precision: awq
+dtype: half                  # activations and the parts that are not quantized (embeddings, norms) run in FP16
+quantization: awq            # vLLM's AWQ GEMM kernels (its faster Marlin kernels need a newer GPU than the T4)
+quantize:                    # src/quantize.py makes the checkpoint with GPTQModel (calibration set: CALIBRATION there)
+  method: awq
+  bits: 4
+  group_size: 128
+  zero_point: true           # asymmetric (with zero points), the usual AWQ setting
+tensor_parallel_size: 1
+max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
+gpu_memory_utilization: 0.90
+chat_template_kwargs: {date_string: "26 Jul 2024"}   # fixed; otherwise the template writes today's date into every prompt
+sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+  min_p: 0.0
+  repetition_penalty: 1.0
+  seed: 42
+  max_tokens: 4096           # same answer budget as BFCL

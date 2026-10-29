@@ -93,7 +93,8 @@ def gptqmodel_4bit(cfg, revision, out_dir):
 
     settings = cfg["quantize"]
     # GPTQModel reads the model config without a revision, so the pinned revision is downloaded first
-    base_dir = Path(snapshot_download(cfg["model"], revision=revision))
+    # (without Llama's original/ folder: the same weights in Meta's own format)
+    base_dir = Path(snapshot_download(cfg["model"], revision=revision, ignore_patterns=["original/*"]))
     tokenizer = AutoTokenizer.from_pretrained(base_dir)
     calibration = []
     for text in calibration_texts():
@@ -123,6 +124,10 @@ def gptqmodel_4bit(cfg, revision, out_dir):
     config["quantization_config"] = quantization_config
     with open(out_dir / "config.json", "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
+    # The base model's license files go with the checkpoint (needed if it is ever shared)
+    for path in base_dir.iterdir():
+        if path.name.upper().startswith(("LICENSE", "USE_POLICY", "NOTICE")):
+            shutil.copy(path, out_dir / path.name)
 
 
 METHODS = {"bnb-int8": bnb_int8, "gptq": gptqmodel_4bit, "awq": gptqmodel_4bit}
