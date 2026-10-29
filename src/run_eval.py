@@ -7,31 +7,32 @@ Usage (from the repository root, in the BFCL environment):
 Writes results/raw/<run_id>.jsonl (one line per question) and results/meta/<run_id>.json (model and
 revision, software versions, GPU, memory, speed). Score the outputs afterwards with src/score.py.
 The run id is <config name>_<mode>, with a suffix when only some of the questions are run.
+
+A config with a `quantize` section loads its weights from the checkpoint that src/quantize.py made
+(checkpoints/<config name>/, or $CHECKPOINT_DIR/<config name>/); the tokenizer still comes from the
+pinned base model.
 """
 
 import argparse
 import json
 import logging
 import os
-import platform
 import re
 import subprocess
 import sys
 import time
 from collections import Counter
 from datetime import datetime, timezone
-from importlib import metadata
 from pathlib import Path
 
 import yaml
 
 os.environ.setdefault("VLLM_USE_V1", "0")  # T4 (compute capability 7.5) runs on vLLM's V0 engine
 
+from common import REPO, checkpoint_path, package_versions, resolve_revision
 from data import expand_categories, load_questions
 from prompt_format import FORMAT_VERSION, build_messages
 from schema import calls_schema
-
-REPO = Path(__file__).resolve().parents[1]
 
 # Constrained mode uses xgrammar, which supports every schema we build (checked for all 1,390 questions).
 # disable-any-whitespace prevents runaway whitespace (vLLM warns about this for Qwen models), and
@@ -69,24 +70,6 @@ def parse_args():
     parser.add_argument("--results-dir", type=Path, default=REPO / "results")
     parser.add_argument("--overwrite", action="store_true", help="replace an existing run with the same id")
     return parser.parse_args()
-
-
-def resolve_revision(model, revision):
-    """Commit hash of the model on Hugging Face. Configs pin a hash; a branch name is looked up."""
-    if re.fullmatch(r"[0-9a-f]{40}", revision):
-        return revision
-    from huggingface_hub import HfApi
-    return HfApi().model_info(model, revision=revision).sha
-
-
-def package_versions():
-    versions = {"python": platform.python_version()}
-    for package in ["vllm", "torch", "transformers", "bfcl-eval", "xgrammar"]:
-        try:
-            versions[package] = metadata.version(package)
-        except metadata.PackageNotFoundError:
-            versions[package] = None
-    return versions
 
 
 def code_version():
@@ -136,6 +119,19 @@ def main():
     print(f"Run {run_id}: {len(questions)} questions from {', '.join(categories)}")
 
     revision = resolve_revision(cfg["model"], str(cfg.get("revision", "main")))
+    weights, weights_revision, quantize_info = cfg["model"], revision, None
+    if "quantize" in cfg:
+        checkpoint = checkpoint_path(args.config)
+        info_path = checkpoint / "quantize_info.json"
+        if not info_path.exists():
+            sys.exit(f"No finished checkpoint in {checkpoint}. Make it first: "
+                     f"python src/quantize.py --config {args.config}")
+        with open(info_path, encoding="utf-8") as f:
+            quantize_info = json.load(f)
+        if quantize_info["revision"] != revision or quantize_info["settings"] != cfg["quantize"]:
+            sys.exit(f"{checkpoint} was made from another revision or with other settings than {args.config}. "
+                     f"Make it again: python src/quantize.py --config {args.config} --overwrite")
+        weights, weights_revision = str(checkpoint), None
     started = datetime.now(timezone.utc)
 
     import torch
@@ -148,8 +144,9 @@ def main():
 
     t0 = time.perf_counter()
     llm = LLM(
-        model=cfg["model"],
-        revision=revision,
+        model=weights,
+        revision=weights_revision,
+        tokenizer=cfg["model"],
         tokenizer_revision=revision,
         dtype=cfg["dtype"],
         quantization=cfg.get("quantization"),
@@ -225,6 +222,7 @@ def main():
         "model": cfg["model"],
         "revision": revision,
         "precision": cfg["precision"],
+        "quantized_checkpoint": quantize_info,
         "mode": args.mode,
         "guided_decoding_backend": GUIDED_BACKEND if args.mode == "constrained" else None,
         "prompt_format": FORMAT_VERSION,

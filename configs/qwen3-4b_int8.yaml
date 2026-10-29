@@ -1,0 +1,22 @@
+# Qwen3-4B in INT8 (bitsandbytes LLM.int8), thinking mode off (the study's 4B model; not Instruct-2507)
+model: Qwen/Qwen3-4B
+revision: 1cfa9a7208912126459214e8b04321603b3df60c    # Hugging Face commit, pinned on 2026-10-12
+precision: int8
+dtype: half                  # the parts that are not quantized (embeddings, norms, outlier features) run in FP16
+quantization: bitsandbytes
+quantize:                    # src/quantize.py makes the 8-bit checkpoint before the run (vLLM cannot do it while loading)
+  method: bnb-int8           # 8-bit weights with one scale per row; input features above the threshold stay in FP16
+  llm_int8_threshold: 6.0    # the bitsandbytes default
+tensor_parallel_size: 1      # vLLM cannot split a pre-quantized bitsandbytes model across GPUs
+max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
+gpu_memory_utilization: 0.90
+llm_kwargs: {enforce_eager: true}   # vLLM has no CUDA graphs for 8-bit bitsandbytes (it would switch to eager anyway)
+chat_template_kwargs: {enable_thinking: false}
+sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+  min_p: 0.0
+  repetition_penalty: 1.0
+  seed: 42
+  max_tokens: 4096           # same answer budget as BFCL

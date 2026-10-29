@@ -1,0 +1,18 @@
+# Qwen3-4B in NF4 (bitsandbytes 4-bit), thinking mode off (the study's 4B model; not Instruct-2507)
+model: Qwen/Qwen3-4B
+revision: 1cfa9a7208912126459214e8b04321603b3df60c    # Hugging Face commit, pinned on 2026-10-12
+precision: nf4
+dtype: half                  # activations and the parts that are not quantized (embeddings, norms) run in FP16
+quantization: bitsandbytes   # vLLM quantizes the FP16 weights while loading: 4-bit NF4, blocks of 64, double quantization
+tensor_parallel_size: 1
+max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
+gpu_memory_utilization: 0.90
+chat_template_kwargs: {enable_thinking: false}
+sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+  min_p: 0.0
+  repetition_penalty: 1.0
+  seed: 42
+  max_tokens: 4096           # same answer budget as BFCL

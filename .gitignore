@@ -20,6 +20,7 @@ venv/
 *.pth
 hf_cache/
 models/
+checkpoints/
 
 # Large raw outputs (summaries in results/ are committed)
 results/raw/
