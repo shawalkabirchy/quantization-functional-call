@@ -9,7 +9,8 @@ quantize:                    # src/quantize.py makes the 8-bit checkpoint before
   llm_int8_threshold: 6.0    # the bitsandbytes default
 tensor_parallel_size: 1      # vLLM cannot split a pre-quantized bitsandbytes model; 8-bit Qwen3-8B fits on one T4
 max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
-gpu_memory_utilization: 0.90
+gpu_memory_utilization: 0.81   # 0.90 ran out of memory: 8-bit bitsandbytes needs more temporary memory than vLLM's
+                               # profiling measures. 0.81 leaves ~1.2 GiB spare; the KV cache still holds ~9,400 tokens
 llm_kwargs: {enforce_eager: true}   # vLLM has no CUDA graphs for 8-bit bitsandbytes (it would switch to eager anyway)
 chat_template_kwargs: {enable_thinking: false}
 sampling:                    # greedy decoding; every value is set, nothing comes from generation_config
