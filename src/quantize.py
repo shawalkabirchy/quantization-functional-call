@@ -108,6 +108,10 @@ def gptqmodel_4bit(cfg, revision, out_dir):
         quant_config = QuantizeConfig(**shared, quant_method=METHOD.GPTQ, format=FORMAT.GPTQ, sym=settings["sym"],
                                       desc_act=settings["desc_act"], act_group_aware=False)
     else:
+        # GPTQModel packs AWQ weights with this class, and refuses to create it without its compiled CUDA kernels.
+        # Only the class's forward() uses those kernels; packing is plain PyTorch and vLLM runs the model.
+        from gptqmodel.nn_modules.qlinear.gemm_awq import AwqGEMMQuantLinear
+        AwqGEMMQuantLinear.validate_once = classmethod(lambda cls: (True, None))
         quant_config = QuantizeConfig(**shared, quant_method=METHOD.AWQ, format=FORMAT.GEMM,
                                       sym=not settings["zero_point"])
 
