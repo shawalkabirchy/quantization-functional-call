@@ -112,7 +112,9 @@ def gptqmodel_4bit(cfg, revision, out_dir):
                                       sym=not settings["zero_point"])
 
     model = GPTQModel.load(str(base_dir), quant_config, dtype=torch.float16)  # T4 has no BF16
-    model.quantize(calibration, batch_size=1)
+    # batch_size also sets how many samples AWQ's scale search runs at once. With 1, GPTQModel runs all of them
+    # in one forward pass, which does not fit on a T4.
+    model.quantize(calibration, batch_size=settings.get("batch_size", 1))
     model.save(str(out_dir))
 
     # vLLM reads config.json with an older transformers than GPTQModel's. Keep the base model's config.json

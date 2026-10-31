@@ -9,6 +9,7 @@ quantize:                    # src/quantize.py makes the checkpoint with GPTQMod
   bits: 4
   group_size: 128
   zero_point: true           # asymmetric (with zero points), the usual AWQ setting
+  batch_size: 16             # samples per forward pass; all 256 at once ran out of memory on a T4
 tensor_parallel_size: 1
 max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
 gpu_memory_utilization: 0.90
