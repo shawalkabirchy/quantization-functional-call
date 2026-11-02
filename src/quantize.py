@@ -84,6 +84,25 @@ def calibration_texts():
                        f"{CALIBRATION['min_chars']}+ characters")
 
 
+def fp16_copy(base_dir, copy_dir):
+    """Save the base model with its weights in FP16.
+
+    GPTQModel converts BF16 weights to FP16 in RAM, which is about 15 GiB for Qwen3-8B. Weights that are already in
+    FP16 stay on disk until they are needed. The values are the same either way.
+    """
+    import torch
+    from safetensors.torch import load_file, save_file
+
+    size = sum(path.stat().st_size for path in base_dir.glob("*.safetensors"))
+    if shutil.disk_usage(copy_dir.parent).free < 1.5 * size:  # room for this copy and for the 4-bit checkpoint
+        raise RuntimeError(f"Not enough disk space for an FP16 copy of {size / 2**30:.1f} GiB in {copy_dir.parent}")
+    shutil.rmtree(copy_dir, ignore_errors=True)
+    shutil.copytree(base_dir, copy_dir, ignore=shutil.ignore_patterns("*.safetensors"))
+    for path in sorted(base_dir.glob("*.safetensors")):
+        weights = {name: tensor.to(torch.float16) for name, tensor in load_file(path).items()}
+        save_file(weights, copy_dir / path.name, metadata={"format": "pt"})
+
+
 def gptqmodel_4bit(cfg, revision, out_dir):
     import torch
     from gptqmodel import GPTQModel, QuantizeConfig
@@ -115,11 +134,17 @@ def gptqmodel_4bit(cfg, revision, out_dir):
         quant_config = QuantizeConfig(**shared, quant_method=METHOD.AWQ, format=FORMAT.GEMM,
                                       sym=not settings["zero_point"])
 
-    model = GPTQModel.load(str(base_dir), quant_config, dtype=torch.float16)  # T4 has no BF16
+    load_dir = base_dir
+    if settings.get("fp16_copy"):
+        load_dir = out_dir.parent / f"{out_dir.name}_fp16"
+        fp16_copy(base_dir, load_dir)
+    model = GPTQModel.load(str(load_dir), quant_config, dtype=torch.float16)  # T4 has no BF16
     # batch_size also sets how many samples AWQ's scale search runs at once. With 1, GPTQModel runs all of them
     # in one forward pass, which does not fit on a T4.
     model.quantize(calibration, batch_size=settings.get("batch_size", 1))
     model.save(str(out_dir))
+    if load_dir != base_dir:
+        shutil.rmtree(load_dir, ignore_errors=True)
 
     # vLLM reads config.json with an older transformers than GPTQModel's. Keep the base model's config.json
     # (exactly what the FP16 runs used) and add only the quantization settings that GPTQModel wrote.
