@@ -14,7 +14,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 4 (Wed 14 Oct):** FP16 baselines for all 5 core models
 
 ## Week 3 (18-24 Oct): Quantization sweep
-- [ ] **Update 5 (Mon 19 Oct):** INT8 and NF4 runs; GPTQ/AWQ checkpoints prepared
+- [x] **Update 5 (Mon 19 Oct):** INT8 and NF4 runs; GPTQ/AWQ checkpoints prepared (pushed Mon 2 Nov; AWQ checkpoints moved to Update 6)
 - [ ] **Update 6 (Wed 21 Oct):** GPTQ and AWQ runs; **first main results table**
 
 ## Week 4 (25-31 Oct): Failure taxonomy and midpoint

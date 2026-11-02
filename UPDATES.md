@@ -5,6 +5,49 @@ meeting.
 
 ---
 
+## Update 5: INT8 and NF4 results
+Planned: Mon 19 Oct · Pushed: Mon 2 Nov (delayed: campus closure and illness)
+
+**Done:**
+- INT8 and NF4 runs for all five core models (free mode, 1,390 BFCL `non_live` questions each):
+  [report](results/int8_nf4.md), [scores](results/summary.csv),
+  [main notebook](notebooks/04_int8_nf4_run_main.ipynb),
+  [Qwen3-8B NF4 rerun](notebooks/04_int8_nf4_run_qwen3-8b_nf4.ipynb)
+- INT8 checkpoints made with [`src/quantize.py`](src/quantize.py), because vLLM only loads 8-bit
+  bitsandbytes models that are already quantized; NF4 is quantized by vLLM while loading
+- 4-bit checkpoints made with one recipe: GPTQ for all five models, AWQ for four; the recipe and the
+  reasons for it are in [`notes/decisions.md`](notes/decisions.md)
+- All 10 runs re-scored on a PC: the same verdict on every question. Every prompt is the same as in
+  the FP16 run
+
+**Result** (Overall = BFCL's Non-Live Overall Acc, %):
+
+| Model | FP16 | INT8 | NF4 |
+|---|---:|---:|---:|
+| Qwen3-1.7B | 72.56 | 69.42 | 69.06 |
+| Qwen3-4B | 88.04 | 88.29 | 85.69 |
+| Qwen3-8B | 88.29 | 87.27 | 88.00 |
+| Llama-3.2-1B-Instruct | 36.40 | 34.94 | 16.02 |
+| Llama-3.2-3B-Instruct | 31.38 | 34.02 | 52.75 |
+
+INT8 stays within about 3 points of FP16 on every model, and Qwen3-4B and 8B barely change in either
+format. The two big moves are both Llama at NF4, and format plays a large part in both. Llama-3.2-1B
+falls 20.38 points: 430 of its AST answers do not parse (109 at FP16), many of them copying the
+function definition. Llama-3.2-3B rises 21.37 points, because its habit of leaving out the closing `]`
+nearly disappears (503 answers at FP16, 76 at NF4). With the bracket repair from Update 4 applied to
+both runs as a check, its gain is 9.60 points, and its irrelevance score falls from 60.42 to 26.25.
+These are single runs, not yet tested for significance (Update 8).
+
+**Problem:** The Qwen3-8B AWQ checkpoint is not ready. That job stopped in its first layer with no
+error, most likely out of system memory. A fix is tested on small models and has not yet run on the
+full model. AWQ failed on the T4 twice before that (GPU memory, then a compiled module we do not
+build); both are fixed, and the other four checkpoints are made. Qwen3-8B also needed reruns for INT8
+and NF4; the [report](results/int8_nf4.md) has the details.
+
+**Next (Update 6, planned Wed 21 Oct):** GPTQ and AWQ runs; first main results table.
+
+---
+
 ## 2026-10-12 (Update 4)
 
 **Done:**
