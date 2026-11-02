@@ -103,6 +103,26 @@ def fp16_copy(base_dir, copy_dir):
         save_file(weights, copy_dir / path.name, metadata={"format": "pt"})
 
 
+def limit_awq_scales(x_mean_floor, max_scale):
+    """Keep AWQ's channel scales in a range that FP16 can hold.
+
+    A channel that is almost never active gets an extreme scale, and then all the others shift with it. AWQ divides
+    the previous layer's weights by these scales, so its output can overflow FP16 and turn into NaN. Very quiet
+    channels are treated as if they had x_mean_floor times the median activation, and every scale is kept between
+    1 / max_scale and max_scale. Other channels are not changed.
+    """
+    from gptqmodel.looper.awq_processor import AWQProcessor
+
+    search = AWQProcessor._compute_best_scale
+
+    def limited(self, x, w_mean, x_mean, *args, **kwargs):
+        x_mean = x_mean.clamp(min=float(x_mean.median()) * x_mean_floor)
+        scales, loss = search(self, x, w_mean, x_mean, *args, **kwargs)
+        return scales.clamp(1 / max_scale, max_scale), loss
+
+    AWQProcessor._compute_best_scale = limited
+
+
 def gptqmodel_4bit(cfg, revision, out_dir):
     import torch
     from gptqmodel import GPTQModel, QuantizeConfig
@@ -131,6 +151,8 @@ def gptqmodel_4bit(cfg, revision, out_dir):
         # Only the class's forward() uses those kernels; packing is plain PyTorch and vLLM runs the model.
         from gptqmodel.nn_modules.qlinear.gemm_awq import AwqGEMMQuantLinear
         AwqGEMMQuantLinear.validate_once = classmethod(lambda cls: (True, None))
+        if "max_scale" in settings:
+            limit_awq_scales(settings["x_mean_floor"], settings["max_scale"])
         quant_config = QuantizeConfig(**shared, quant_method=METHOD.AWQ, format=FORMAT.GEMM,
                                       sym=not settings["zero_point"])
 
