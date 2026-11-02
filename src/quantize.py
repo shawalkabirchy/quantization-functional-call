@@ -123,6 +123,19 @@ def limit_awq_scales(x_mean_floor, max_scale):
     AWQProcessor._compute_best_scale = limited
 
 
+def smaller_awq_chunks(chunk_mib):
+    """AWQ sums large tensors in chunks of 1 GiB. Smaller chunks need less free GPU memory at one moment."""
+    from gptqmodel.looper.awq_processor import AWQProcessor
+
+    init = AWQProcessor.__init__
+
+    def with_smaller_chunks(self, *args, **kwargs):
+        init(self, *args, **kwargs)
+        self.max_chunk_memory = chunk_mib * 2**20
+
+    AWQProcessor.__init__ = with_smaller_chunks
+
+
 def gptqmodel_4bit(cfg, revision, out_dir):
     import torch
     from gptqmodel import GPTQModel, QuantizeConfig
@@ -153,6 +166,8 @@ def gptqmodel_4bit(cfg, revision, out_dir):
         AwqGEMMQuantLinear.validate_once = classmethod(lambda cls: (True, None))
         if "max_scale" in settings:
             limit_awq_scales(settings["x_mean_floor"], settings["max_scale"])
+        if "chunk_mib" in settings:
+            smaller_awq_chunks(settings["chunk_mib"])
         quant_config = QuantizeConfig(**shared, quant_method=METHOD.AWQ, format=FORMAT.GEMM,
                                       sym=not settings["zero_point"])
 

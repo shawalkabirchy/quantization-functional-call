@@ -14,6 +14,7 @@ quantize:                    # src/quantize.py makes the checkpoint with GPTQMod
                              # with no error, most likely out of system memory
   x_mean_floor: 0.001        # with max_scale: without these limits, silent channels gave scales up to 2450, and
   max_scale: 100             # layer 2's up_proj overflowed FP16 (65,504), which turned everything after it into NaN
+  chunk_mib: 128             # AWQ's 1 GiB working chunks ran out of GPU memory at layer 22
 tensor_parallel_size: 1      # 4-bit Qwen3-8B fits on one T4 (FP16 needed both)
 max_model_len: 8192          # longest non-live prompt is about 1,250 tokens, plus 4,096 for the answer
 gpu_memory_utilization: 0.90
