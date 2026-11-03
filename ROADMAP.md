@@ -18,7 +18,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 6 (Wed 21 Oct):** GPTQ and AWQ runs; **first main results table** (pushed Tue 3 Nov)
 
 ## Week 4 (25-31 Oct): Failure taxonomy and midpoint
-- [ ] **Update 7 (Mon 26 Oct):** syntactic vs. semantic failure classifier
+- [x] **Update 7 (Mon 26 Oct):** syntactic vs. semantic failure classifier (pushed Tue 3 Nov)
 - [ ] **Update 8 (Wed 28 Oct):** **midpoint**: accuracy drop by precision and model size; paper outline
 
 ## Week 5 (1-7 Nov): Constrained decoding

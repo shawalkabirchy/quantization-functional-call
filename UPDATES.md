@@ -5,6 +5,42 @@ meeting.
 
 ---
 
+## Update 7: Syntactic vs. semantic failure classifier
+Planned: Mon 26 Oct · Pushed: Tue 3 Nov (delayed: campus closure and illness)
+
+**Done:**
+- [`src/taxonomy.py`](src/taxonomy.py) sorts every failed answer into a class: S1 not valid JSON, S2 does
+  not match the schema (syntactic); M1 wrong function, M2 wrong argument value, M3 wrong number of calls,
+  M4 a call on an irrelevance question, M5 no call (semantic). The schema is the one constrained
+  decoding enforces ([`src/schema.py`](src/schema.py), from Update 3)
+- All 25 free runs classified: [report](results/taxonomy_free.md), [counts](results/taxonomy_free.csv),
+  [figure](results/figures/taxonomy_free.png)
+- Checked by hand on two random samples of 40 failures: the final version agrees on all 80
+  ([`notes/taxonomy_check.md`](notes/taxonomy_check.md)). The counts match the scores on every run
+- Rules recorded in [`notes/decisions.md`](notes/decisions.md): an invented argument or function name is
+  syntactic, because the schema does not allow it
+
+**Result:** 6,844 of the 11,625 failures in the 25 runs (58.9%) are syntactic.
+
+| Model | Syntactic share of failures (5 precisions) |
+|---|---|
+| Qwen3-1.7B | 24.3% to 63.3% |
+| Qwen3-4B | 6.5% to 9.6% |
+| Qwen3-8B | 7.5% to 10.6% |
+| Llama-3.2-1B-Instruct | 43.9% to 84.9% |
+| Llama-3.2-3B-Instruct | 59.0% to 90.1% |
+
+Qwen3-4B and Qwen3-8B fail mostly on argument values, at every precision. In the three smaller models,
+quantization mostly moves the syntactic counts: Qwen3-1.7B GPTQ has 273 more syntactic failures than
+FP16 and 63 more semantic ones; Llama-3.2-1B GPTQ has 481 more syntactic ones; Llama-3.2-3B GPTQ has
+441 fewer. A format error hides any content error in the same answer, so the two counts are not
+independent.
+
+**Next (Update 8, planned Wed 28 Oct):** accuracy drop by precision and model size, with significance
+tests; paper outline.
+
+---
+
 ## Update 6: GPTQ and AWQ results; first main table
 Planned: Wed 21 Oct · Pushed: Tue 3 Nov (delayed: campus closure and illness)
 

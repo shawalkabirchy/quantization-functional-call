@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 5 of 9: quantization sweep done, first main table · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 5 of 9: quantization sweep and failure classifier done; constrained runs under way · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -44,12 +44,12 @@ The core study is 5 models × 5 precisions × 2 decoding modes = **50 evaluation
 **Hardware:** Kaggle (2× NVIDIA T4). T4 GPUs do not support BF16, so FP16 is the full-precision
 baseline.
 
-## Failure taxonomy (planned)
+## Failure taxonomy
 
 | Type | Class | Example |
 |---|---|---|
 | Syntactic | S1 Unparseable output | Truncated or malformed JSON |
-| Syntactic | S2 Schema violation | `"count": "5"` where an integer is required; value outside an enum |
+| Syntactic | S2 Schema violation | `"count": "5"` where an integer is required; value outside an enum; a function or argument that is not defined |
 | Semantic | M1 Wrong function | Calls `get_weather` instead of `get_forecast` |
 | Semantic | M2 Wrong argument value | Valid schema, but `unit: "celsius"` where the query asked for Fahrenheit |
 | Semantic | M3 Wrong number of calls | Two calls expected, one produced |
@@ -57,7 +57,8 @@ baseline.
 | Semantic | M5 Missed tool call | No call when one was required |
 
 Rule: output that fails JSON parsing or schema validation is **syntactic**. Output that passes the
-schema but fails the BFCL checker is **semantic**.
+schema but fails the BFCL checker is **semantic**. Classifier: [`src/taxonomy.py`](src/taxonomy.py);
+results for the free runs: [`results/taxonomy_free.md`](results/taxonomy_free.md).
 
 ## Repository layout
 
@@ -80,6 +81,8 @@ with `bfcl-eval==2026.3.23` and vLLM 0.8.5. From the repository root:
 ```
 python src/run_eval.py --config configs/qwen3-4b_fp16.yaml --mode free   # raw answers -> results/raw/
 python src/score.py results/raw/qwen3-4b_fp16_free.jsonl                # scores -> results/summary.csv
+python src/taxonomy.py --mode free                                      # failure classes -> results/taxonomy_free.csv
+python src/figures.py taxonomy --mode free                              # figure (needs matplotlib)
 ```
 
 `--mode constrained` forces every answer to match the functions' JSON schema. Every run also saves
