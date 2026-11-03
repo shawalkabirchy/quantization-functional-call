@@ -15,7 +15,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 3 (18-24 Oct): Quantization sweep
 - [x] **Update 5 (Mon 19 Oct):** INT8 and NF4 runs; GPTQ/AWQ checkpoints prepared (pushed Mon 2 Nov; AWQ checkpoints moved to Update 6)
-- [ ] **Update 6 (Wed 21 Oct):** GPTQ and AWQ runs; **first main results table**
+- [x] **Update 6 (Wed 21 Oct):** GPTQ and AWQ runs; **first main results table** (pushed Tue 3 Nov)
 
 ## Week 4 (25-31 Oct): Failure taxonomy and midpoint
 - [ ] **Update 7 (Mon 26 Oct):** syntactic vs. semantic failure classifier

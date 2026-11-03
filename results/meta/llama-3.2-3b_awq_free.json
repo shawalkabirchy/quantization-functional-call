@@ -1,0 +1,132 @@
+{
+  "run_id": "llama-3.2-3b_awq_free",
+  "config_file": "configs/llama-3.2-3b_awq.yaml",
+  "config": {
+    "model": "meta-llama/Llama-3.2-3B-Instruct",
+    "revision": "0cb88a4f764b7a12671c53f0838cd831a0843b95",
+    "precision": "awq",
+    "dtype": "half",
+    "quantization": "awq",
+    "quantize": {
+      "method": "awq",
+      "bits": 4,
+      "group_size": 128,
+      "zero_point": true,
+      "batch_size": 16
+    },
+    "tensor_parallel_size": 1,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "chat_template_kwargs": {
+      "date_string": "26 Jul 2024"
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": -1,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0,
+      "seed": 42,
+      "max_tokens": 4096
+    }
+  },
+  "model": "meta-llama/Llama-3.2-3B-Instruct",
+  "revision": "0cb88a4f764b7a12671c53f0838cd831a0843b95",
+  "precision": "awq",
+  "quantized_checkpoint": {
+    "config_file": "configs/llama-3.2-3b_awq.yaml",
+    "model": "meta-llama/Llama-3.2-3B-Instruct",
+    "revision": "0cb88a4f764b7a12671c53f0838cd831a0843b95",
+    "method": "awq",
+    "settings": {
+      "method": "awq",
+      "bits": 4,
+      "group_size": 128,
+      "zero_point": true,
+      "batch_size": 16
+    },
+    "calibration": {
+      "dataset": "allenai/c4",
+      "revision": "1588ec454efa1a09f29cd18ddd04fe05fc8653a2",
+      "file": "en/c4-train.00001-of-01024.json.gz",
+      "samples": 256,
+      "min_chars": 3000,
+      "tokens": 512
+    },
+    "started_utc": "2026-11-01T21:12:21+00:00",
+    "seconds": 2663.9,
+    "size_gib": 2.114,
+    "versions": {
+      "python": "3.11.17",
+      "vllm": null,
+      "torch": "2.9.1",
+      "transformers": "4.57.6",
+      "bfcl-eval": null,
+      "xgrammar": null,
+      "bitsandbytes": null,
+      "accelerate": "1.15.0",
+      "gptqmodel": "5.7.0"
+    }
+  },
+  "mode": "free",
+  "guided_decoding_backend": null,
+  "prompt_format": "json-array-v1",
+  "categories": [
+    "simple_python",
+    "simple_java",
+    "simple_javascript",
+    "multiple",
+    "parallel",
+    "parallel_multiple",
+    "irrelevance"
+  ],
+  "limit_per_category": null,
+  "n_questions": 1390,
+  "sampling_params": "SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=-1, min_p=0.0, seed=42, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=4096, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None)",
+  "started_utc": "2026-11-01T21:56:48+00:00",
+  "finished_utc": "2026-11-01T22:04:50+00:00",
+  "model_load_seconds": 53.7,
+  "generation_seconds": 404.1,
+  "prompt_tokens": 661642,
+  "output_tokens": 72451,
+  "output_tokens_per_second": 179.3,
+  "finish_reasons": {
+    "stop": 1390
+  },
+  "memory": {
+    "model_weights_gib": 2.1367,
+    "activation_peak_gib": 1.22,
+    "kv_cache_gib": 9.71,
+    "gpus_after_run": [
+      {
+        "index": 0,
+        "used_mib": 14679,
+        "total_mib": 15360
+      },
+      {
+        "index": 1,
+        "used_mib": 3,
+        "total_mib": 15360
+      }
+    ]
+  },
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "versions": {
+    "python": "3.11.17",
+    "vllm": "0.8.5",
+    "torch": "2.6.0",
+    "transformers": "4.51.3",
+    "bfcl-eval": "2026.3.23",
+    "xgrammar": "0.1.18",
+    "bitsandbytes": "0.45.5",
+    "accelerate": "1.6.0",
+    "gptqmodel": null
+  },
+  "code": {
+    "commit": "4f41d13618c84b0c3740c41b4866850944cb2503",
+    "uncommitted_changes": false
+  }
+}

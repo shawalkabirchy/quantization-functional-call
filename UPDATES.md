@@ -5,6 +5,45 @@ meeting.
 
 ---
 
+## Update 6: GPTQ and AWQ results; first main table
+Planned: Wed 21 Oct · Pushed: Tue 3 Nov (delayed: campus closure and illness)
+
+**Done:**
+- GPTQ and AWQ runs for all five core models (free mode, 1,390 BFCL `non_live` questions each):
+  [report](results/gptq_awq.md), [scores](results/summary.csv), notebooks:
+  [GPTQ](notebooks/05_gptq_awq_run_gptq.ipynb), [AWQ](notebooks/05_gptq_awq_run_awq.ipynb),
+  [Qwen3-8B AWQ](notebooks/05_gptq_awq_run_qwen3-8b_awq.ipynb)
+- First main table: all 25 model and precision combinations ([main table](results/main_table.md))
+- AWQ checkpoints saved on Hugging Face (private)
+- All 10 runs re-scored on a PC: the same verdict on every question. Every prompt is the same as in
+  the FP16 run
+
+**Result** (Overall = BFCL's Non-Live Overall Acc, %):
+
+| Model | FP16 | INT8 | NF4 | GPTQ | AWQ |
+|---|---:|---:|---:|---:|---:|
+| Qwen3-1.7B | 72.56 | 69.42 | 69.06 | 39.25 | 75.94 |
+| Qwen3-4B | 88.04 | 88.29 | 85.69 | 86.60 | 86.98 |
+| Qwen3-8B | 88.29 | 87.27 | 88.00 | 85.98 | 88.42 |
+| Llama-3.2-1B-Instruct | 36.40 | 34.94 | 16.02 | 11.40 | 17.81 |
+| Llama-3.2-3B-Instruct | 31.38 | 34.02 | 52.75 | 59.52 | 39.73 |
+
+Qwen3-4B and Qwen3-8B stay within 2.35 points of FP16 at every precision. The three smaller models move
+a lot, and mostly through format. Qwen3-1.7B falls 33.31 points with GPTQ: 395 of its AST answers do
+not parse (121 at FP16), 221 of them with one `}` too many. Llama-3.2-1B falls with NF4, GPTQ and AWQ,
+often copying the function definition. Llama-3.2-3B rises with all three, partly because its habit of leaving
+out the closing `]` fades. These are single runs, not yet tested for significance (Update 8).
+Constrained decoding (Update 9) will show how much of each change is format.
+
+**Problem:** Qwen3-8B AWQ needed three more settings that no other checkpoint uses: an FP16 copy of the
+weights on disk (system memory), limits on AWQ's scales (an FP16 overflow made every value NaN), and
+smaller working chunks (GPU memory). The quantization settings and calibration are unchanged; the
+[report](results/gptq_awq.md) and [`notes/decisions.md`](notes/decisions.md) have the details.
+
+**Next (Update 7, planned Mon 26 Oct):** syntactic vs. semantic failure classifier.
+
+---
+
 ## Update 5: INT8 and NF4 results
 Planned: Mon 19 Oct · Pushed: Mon 2 Nov (delayed: campus closure and illness)
 
