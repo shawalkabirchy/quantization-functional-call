@@ -5,6 +5,41 @@ meeting.
 
 ---
 
+## Update 8: Accuracy drop by precision and model size (midpoint)
+Planned: Wed 28 Oct · Pushed: Tue 3 Nov (delayed: campus closure and illness)
+
+**Done:**
+- Key figure: change in accuracy from FP16 for each precision, models smallest first
+  ([figure](results/figures/penalty_by_size_free.png))
+- Significance tests for all 20 quantized runs, paired by question: McNemar's exact test with Holm's
+  correction, and bootstrap 95% intervals ([`src/significance.py`](src/significance.py),
+  [report](results/significance_free.md), [table](results/significance_free.csv))
+- Paper outline: every section in bullet points, IEEE conference template ([`paper/main.tex`](paper/main.tex))
+- Choices recorded in [`notes/decisions.md`](notes/decisions.md)
+
+**Result:** 11 of the 20 changes are significant (Holm-adjusted p < 0.05).
+
+| Model | Significant changes (points) | Not significant |
+|---|---|---|
+| Qwen3-1.7B | GPTQ -33.31, INT8 -3.14, AWQ +3.38 | NF4 |
+| Qwen3-4B | NF4 -2.35 | INT8, GPTQ, AWQ |
+| Qwen3-8B | GPTQ -2.31 | INT8, NF4, AWQ |
+| Llama-3.2-1B-Instruct | GPTQ -25.00, NF4 -20.38, AWQ -18.59 | INT8 |
+| Llama-3.2-3B-Instruct | GPTQ +28.14, NF4 +21.37, AWQ +8.35 | INT8 |
+
+The larger Qwen3 models barely move, with only small changes (at most 2.35 points) significant.
+Within each family the smallest model is hurt most, but size alone does not predict the change:
+Llama-3.2-3B gains with every 4-bit method. INT8 is the gentlest precision: a significant change only
+for Qwen3-1.7B. These are single greedy runs, so the tests cover the choice of questions, not
+run-to-run noise.
+
+**For the meeting:** choose one stretch item for Week 7 (pre-execution verifier, API-Bank or KV-cache
+quantization), or drop it to catch up (the plan's first fallback rule); confirm the paper template.
+
+**Next (Update 9, planned Mon 2 Nov):** constrained decoding for all 25 combinations; Setup section.
+
+---
+
 ## Update 7: Syntactic vs. semantic failure classifier
 Planned: Mon 26 Oct · Pushed: Tue 3 Nov (delayed: campus closure and illness)
 

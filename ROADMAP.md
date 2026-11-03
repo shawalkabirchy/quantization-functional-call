@@ -19,7 +19,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 4 (25-31 Oct): Failure taxonomy and midpoint
 - [x] **Update 7 (Mon 26 Oct):** syntactic vs. semantic failure classifier (pushed Tue 3 Nov)
-- [ ] **Update 8 (Wed 28 Oct):** **midpoint**: accuracy drop by precision and model size; paper outline
+- [x] **Update 8 (Wed 28 Oct):** **midpoint**: accuracy drop by precision and model size; paper outline (pushed Tue 3 Nov)
 
 ## Week 5 (1-7 Nov): Constrained decoding
 - [ ] **Update 9 (Mon 2 Nov):** JSON-schema-constrained runs for all model x precision combinations; Setup section

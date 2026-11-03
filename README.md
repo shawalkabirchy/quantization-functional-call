@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 5 of 9: quantization sweep and failure classifier done; constrained runs under way · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 5 of 9: quantization sweep, failure classifier and significance tests done; constrained runs under way · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -83,6 +83,8 @@ python src/run_eval.py --config configs/qwen3-4b_fp16.yaml --mode free   # raw a
 python src/score.py results/raw/qwen3-4b_fp16_free.jsonl                # scores -> results/summary.csv
 python src/taxonomy.py --mode free                                      # failure classes -> results/taxonomy_free.csv
 python src/figures.py taxonomy --mode free                              # figure (needs matplotlib)
+python src/significance.py --mode free                                  # tests -> results/significance_free.csv
+python src/figures.py penalty --mode free                               # change from FP16, by model size
 ```
 
 `--mode constrained` forces every answer to match the functions' JSON schema. Every run also saves

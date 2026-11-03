@@ -1,0 +1,201 @@
+% Paper outline (Update 8): every section in bullet points. The text is written in later updates
+% (Setup in Update 9, Introduction in Update 11, Related Work in Update 12, Method in Update 13,
+% the rest in Update 15). Numbers come from results/; check them again before the final version.
+%
+% Build: from this folder, e.g. `tectonic main.tex` or `pdflatex main.tex`.
+% The figures are read from ../results/figures/.
+\documentclass[conference]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\graphicspath{{../results/figures/}}
+
+\begin{document}
+
+\title{Silent Tool-Call Failures: How Quantization Degrades Function Calling and Structured Output in Small LLMs}
+
+% Author list and affiliation: to be confirmed with the supervisor.
+\author{\IEEEauthorblockN{Shawal Kabir Chy.}
+\IEEEauthorblockA{CSE498R Directed Research\\
+Supervisor: Dr.\ Mohammad Shifat-E-Rabbi}}
+
+\maketitle
+
+\begin{abstract}
+\textit{Outline. Written last (Update 15).}
+\begin{itemize}
+  \item Problem: small LLMs run quantized on local devices, and a wrong tool call is a wrong action.
+        Accuracy alone does not show how the calls fail.
+  \item What we do: 5 models (1--8B) $\times$ 5 precisions $\times$ 2 decoding modes on the 1,390
+        non-live BFCL questions, one serving stack; every failure sorted into syntactic and semantic classes;
+        paired significance tests.
+  \item Findings so far: Qwen3-4B and Qwen3-8B stay within 2.35 points of FP16 at every precision; the
+        three smaller models move by up to 33 points, mostly through format; 11 of 20 changes are significant.
+  \item Headline (Update 10): how much of the quantization penalty constrained decoding removes.
+\end{itemize}
+\end{abstract}
+
+\section{Introduction}
+\textit{Drafted in Update 11.}
+\begin{itemize}
+  \item Motivation: local and on-premise agents run 4-bit models; output looks fine, but a field gets the wrong
+        type, an enum drifts, or a tool gets a wrong argument.
+  \item Gap: earlier studies report aggregate tool-calling scores under quantization, or study larger models in
+        multi-turn tasks; none splits the failures of small models by class on one serving stack
+        (Section~\ref{sec:related}). We do not claim to be the first to quantize tool-calling models.
+  \item Research questions:
+  \begin{itemize}
+    \item RQ1: how much does function-calling accuracy change with each precision, and does it depend on
+          model size?
+    \item RQ2: which failures are syntactic (format) and which semantic (content)?
+    \item RQ3: how much of the quantization penalty does JSON-schema-constrained decoding remove?
+    \item RQ4: which schema features break first (stress suite)?
+  \end{itemize}
+  \item Contributions: the controlled sweep; the failure classifier, checked by hand; paired tests; the
+        constrained-decoding comparison; the stress suite; code, configs and result tables released.
+\end{itemize}
+
+\section{Related Work}\label{sec:related}
+\textit{Drafted in Update 12 from \texttt{notes/related\_work.md}.}
+\begin{itemize}
+  \item Quantization and tool calling: ACBench (ICML 2025), Less is More (DATE 2025), TinyAgent
+        (EMNLP 2024 Demo), Jang et al.\ (2026), Wu et al.\ (2026); QuantCliff (GitHub, not a paper).
+  \item Quantization beyond perplexity: code generation (Afrin et al., 2026), on-device evaluation (2025).
+  \item Function-calling evaluation: BFCL (ICML 2025), ToolScan (error taxonomy at full precision).
+  \item Structured output and constrained decoding at full precision: Let Me Speak Freely?, JSONSchemaBench,
+        the constraint-tax papers (Ray; Li et al.), Repair, Not Improvement (Lee), Chavan (2026).
+  \item What is still missing: an error breakdown for small models on one stack; constrained decoding
+        combined with quantization, with paired tests; schema features under quantization.
+\end{itemize}
+
+\section{Experimental Setup}\label{sec:setup}
+\textit{Written in Update 9.}
+\begin{itemize}
+  \item Models: Qwen3-1.7B, Qwen3-4B, Qwen3-8B (thinking off) and Llama-3.2-1B/3B-Instruct (fixed date in
+        the chat template), at pinned revisions.
+  \item Precisions: FP16 (the T4 has no BF16); INT8 (bitsandbytes, pre-quantized checkpoint); NF4
+        (bitsandbytes, quantized by vLLM while loading); GPTQ and AWQ (4-bit, groups of 128, GPTQModel 5.7.0,
+        the same calibration documents). Qwen3-8B AWQ needed three memory and overflow settings
+        (\texttt{notes/decisions.md}).
+  \item Benchmark: BFCL non-live, 1,390 questions (1,150 AST and 240 irrelevance), bfcl-eval 2026.3.23; our
+        own runner with a strict JSON-array prompt format; scored with BFCL's AST checker. Overall = BFCL's
+        Non-Live Overall Acc; irrelevance reported on its own.
+  \item Serving: vLLM 0.8.5 on Kaggle T4 GPUs; greedy decoding, seed 42, at most 4,096 answer tokens.
+  \item Constrained mode: vLLM guided decoding (xgrammar) with the JSON schema built from each question's
+        functions.
+  \item Check of the harness: BFCL reproduced on a T4 within one question per category of the leaderboard
+        (Update 2).
+\end{itemize}
+
+\section{Method}\label{sec:method}
+\textit{Drafted in Update 13.}
+\begin{itemize}
+  \item Failure classes: S1 not valid JSON, S2 does not match the schema (syntactic); M1 wrong function,
+        M2 wrong argument value, M3 wrong number of calls, M4 call on an irrelevance question, M5 no call
+        (semantic). Checked in this order; the schema is the one constrained decoding enforces.
+  \item Hand check: two random samples of 40 failures; the final classifier agrees on all 80.
+  \item Statistics: McNemar's exact test on the 1,150 AST questions, paired by question, with Holm's
+        correction over the 20 comparisons; bootstrap 95\% intervals for the change in Overall
+        (10,000 resamples inside each category).
+  \item Constrained-decoding gap (Update 10): the penalty in free mode, the penalty in constrained mode, and the
+        share of the penalty that constrained decoding closes.
+\end{itemize}
+
+\section{Results}\label{sec:results}
+\subsection{Accuracy by precision and model size (RQ1)}
+\begin{itemize}
+  \item Table~\ref{tab:main} and Fig.~\ref{fig:penalty}. Qwen3-4B and Qwen3-8B stay within 2.35 points of
+        FP16; only two of their eight changes are significant.
+  \item The smaller models move a lot: Qwen3-1.7B GPTQ $-33.31$; Llama-3.2-1B $-18.59$ to $-25.00$ with NF4,
+        GPTQ and AWQ; Llama-3.2-3B $+8.35$ to $+28.14$ with the same three.
+  \item Within each family the smallest model is hurt most. Across families, size alone does not predict the
+        change: Llama-3.2-3B gains, while Qwen3-4B, of similar size, barely moves.
+\end{itemize}
+
+\begin{table}[t]
+\centering
+\caption{Overall accuracy (\%), free decoding}\label{tab:main}
+\begin{tabular}{lrrrrr}
+\toprule
+Model & FP16 & INT8 & NF4 & GPTQ & AWQ \\
+\midrule
+Qwen3-1.7B   & 72.56 & 69.42 & 69.06 & 39.25 & 75.94 \\
+Qwen3-4B     & 88.04 & 88.29 & 85.69 & 86.60 & 86.98 \\
+Qwen3-8B     & 88.29 & 87.27 & 88.00 & 85.98 & 88.42 \\
+Llama-3.2-1B & 36.40 & 34.94 & 16.02 & 11.40 & 17.81 \\
+Llama-3.2-3B & 31.38 & 34.02 & 52.75 & 59.52 & 39.73 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{penalty_by_size_free.png}
+\caption{Change in Overall accuracy from FP16, models smallest first, with bootstrap 95\% intervals.
+Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{fig:penalty}
+\end{figure}
+
+\subsection{Failure classes (RQ2)}
+\begin{itemize}
+  \item Fig.~\ref{fig:taxonomy}. 6,844 of the 11,625 failures in the 25 free runs (58.9\%) are syntactic.
+  \item Qwen3-4B and Qwen3-8B fail mostly on argument values (M2); in the smaller models, quantization mostly
+        moves the syntactic counts (Qwen3-1.7B GPTQ: $+273$ syntactic, $+63$ semantic).
+  \item Examples: an extra \texttt{\}} (Qwen3-1.7B GPTQ), a copied function definition (Llama-3.2-1B), a
+        missing closing \texttt{]} (Llama-3.2-3B FP16).
+  \item Caveat: a format error hides any content error in the same answer.
+\end{itemize}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{taxonomy_free.png}
+\caption{Failure classes per run, free decoding (out of 1,390 answers).}\label{fig:taxonomy}
+\end{figure}
+
+\subsection{Constrained decoding (RQ3)}
+\textit{Updates 9--10.}
+\begin{itemize}
+  \item Constrained accuracy for all 25 runs; penalty in both modes; share of the penalty closed.
+  \item Do syntactic failures turn into semantic ones (substitution), as earlier work suggests?
+\end{itemize}
+
+\subsection{Schema-stress suite (RQ4)}
+\textit{Updates 11--12.}
+\begin{itemize}
+  \item About 150 cases in six failure classes; which schema features break first as precision drops.
+\end{itemize}
+
+\subsection{Memory and speed}
+\begin{itemize}
+  \item Weights per GPU and output tokens per second for every run, from \texttt{results/meta/}.
+\end{itemize}
+
+\section{Discussion}
+\textit{Update 15.}
+\begin{itemize}
+  \item For small models, format habits decide much of the score, and quantization changes those habits in
+        both directions.
+  \item A higher score after quantization (Llama-3.2-3B) comes mostly from better format, not better content.
+  \item What this means for running agents on small quantized models.
+\end{itemize}
+
+\section{Limitations}
+\begin{itemize}
+  \item FP16, not BF16, as the baseline (T4 GPUs); models of 8B or smaller; two model families.
+  \item One run per configuration (greedy decoding); single-turn BFCL questions only.
+  \item One calibration set for GPTQ and AWQ; Qwen3-8B AWQ needed extra settings.
+  \item The schema is very slightly stricter than BFCL's checker (14 of 34,750 correct answers).
+\end{itemize}
+
+\section{Conclusion}
+\textit{Update 15.}
+\begin{itemize}
+  \item Answers to RQ1--RQ4 in one paragraph each; the practical advice.
+\end{itemize}
+
+\section*{References}
+\textit{To be added as BibTeX (Update 16): BFCL, ToolScan, ACBench, Less is More, TinyAgent, Jang et al.,
+Wu et al., the constrained-decoding papers, vLLM, XGrammar, GPTQ, AWQ, LLM.int8(), QLoRA.}
+
+\end{document}

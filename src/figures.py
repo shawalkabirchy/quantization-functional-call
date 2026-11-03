@@ -2,6 +2,7 @@
 
 Usage (from the repository root):
     python src/figures.py taxonomy --mode free
+    python src/figures.py penalty --mode free     # needs results/significance_<mode>.csv (src/significance.py)
 """
 
 import argparse
@@ -70,13 +71,66 @@ def taxonomy(mode, results_dir):
     print(f"Saved {out}")
 
 
+# Smallest model first. Llama-3.2-1B has 1.2B parameters, Llama-3.2-3B 3.2B
+BY_SIZE = ["llama-3.2-1b", "qwen3-1.7b", "llama-3.2-3b", "qwen3-4b", "qwen3-8b"]
+# Validated as an adjacent set (scripts of the dataviz method); the same hues as above, used here for precisions
+PRECISION_COLORS = {"INT8": "#2a78d6", "NF4": "#eb6834", "GPTQ": "#1baf7a", "AWQ": "#eda100"}
+
+
+def penalty(mode, results_dir):
+    """Change in Overall accuracy from FP16, per model (smallest first) and precision, with 95% intervals."""
+    with open(results_dir / f"significance_{mode}.csv", newline="", encoding="utf-8") as f:
+        rows = {(r["model"], r["precision"]): r for r in csv.DictReader(f)}
+
+    fig, ax = plt.subplots(figsize=(9, 5.2), facecolor=SURFACE)
+    ax.set_facecolor(SURFACE)
+    width = 0.19
+    for x, model in enumerate(BY_SIZE):
+        for i, (precision, color) in enumerate(PRECISION_COLORS.items()):
+            r = rows.get((MODELS[model], precision))
+            if r is None:
+                continue
+            pos = x + (i - 1.5) * (width + 0.02)
+            change, low, high = float(r["change"]), float(r["ci_low"]), float(r["ci_high"])
+            significant = float(r["p_holm"]) < 0.05
+            ax.bar(pos, change, width=width, color=color, linewidth=0,
+                   hatch=None if significant else "////", hatchcolor=SURFACE)
+            ax.plot([pos, pos], [low, high], color=INK, linewidth=1, solid_capstyle="butt")
+            if abs(change) >= 10:   # label only the large changes
+                ax.text(pos, high + 1 if change > 0 else low - 1, f"{change:+.1f}".replace("-", "−"), ha="center",
+                        va="bottom" if change > 0 else "top", fontsize=7.5, color=INK)
+    ax.axhline(0, color=INK, linewidth=0.9)
+    ax.set_xticks(range(len(BY_SIZE)), [MODELS[m].replace("-Instruct", "") for m in BY_SIZE], fontsize=9, color=INK)
+    ax.set_ylabel("Change in Overall accuracy from FP16 (points)", fontsize=9.5, color=MUTED)
+    ax.set_xlabel("Models, smallest first", fontsize=9.5, color=MUTED)
+    ax.grid(axis="y", color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    ax.tick_params(length=0, colors=MUTED)
+    for side in ax.spines.values():
+        side.set_visible(False)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for c in PRECISION_COLORS.values()]
+    handles += [plt.Rectangle((0, 0), 1, 1, color=MUTED),
+                plt.Rectangle((0, 0), 1, 1, facecolor=MUTED, hatch="////", hatchcolor=SURFACE, linewidth=0)]
+    labels = list(PRECISION_COLORS) + ["significant", "not significant"]
+    fig.legend(handles, labels, loc="upper center", ncol=6, frameon=False, fontsize=9, labelcolor=INK,
+               bbox_to_anchor=(0.53, 0.99), handlelength=1.6)
+    fig.text(0.99, 0.01, "Lines: bootstrap 95% intervals. Significant: McNemar test, Holm-adjusted p < 0.05.",
+             ha="right", va="bottom", fontsize=7.5, color=MUTED)
+    fig.subplots_adjust(left=0.09, right=0.98, top=0.9, bottom=0.14)
+
+    out = results_dir / "figures" / f"penalty_by_size_{mode}.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200)
+    print(f"Saved {out}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("figure", choices=["taxonomy"])
+    parser.add_argument("figure", choices=["taxonomy", "penalty"])
     parser.add_argument("--mode", default="free", choices=["free", "constrained"])
     parser.add_argument("--results-dir", type=Path, default=REPO / "results")
     args = parser.parse_args()
-    taxonomy(args.mode, args.results_dir)
+    {"taxonomy": taxonomy, "penalty": penalty}[args.figure](args.mode, args.results_dir)
 
 
 if __name__ == "__main__":
