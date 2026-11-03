@@ -5,6 +5,42 @@ meeting.
 
 ---
 
+## Update 9: Constrained decoding for all 25 combinations
+Planned: Mon 2 Nov · Pushed: Tue 3 Nov (delayed: campus closure and illness)
+
+**Done:**
+- JSON-schema-constrained runs (vLLM guided decoding with XGrammar) for all five core models at all five
+  precisions, 1,390 BFCL `non_live` questions each: [report](results/constrained.md),
+  [main table](results/main_table_constrained.md), [scores](results/summary.csv), notebooks:
+  [template](notebooks/06_constrained.ipynb), [part A](notebooks/06_constrained_run_A.ipynb),
+  [part B](notebooks/06_constrained_run_B.ipynb)
+- All 25 runs re-scored on a PC: the same scores. Every prompt is the same as in the free run, and every
+  answer that parses matches its schema
+- INT8 and GPTQ checkpoints made again (the old ones were not kept): the GPTQ losses are identical to
+  Update 6 on all 1,008 layers. The GPTQ checkpoints are now saved on Hugging Face (private)
+- Setup section of the paper written ([`paper/main.tex`](paper/main.tex))
+
+**Result** (Overall = BFCL's Non-Live Overall Acc, %, constrained):
+
+| Model | FP16 | INT8 | NF4 | GPTQ | AWQ |
+|---|---:|---:|---:|---:|---:|
+| Qwen3-1.7B | 82.46 | 82.79 | 78.50 | 71.65 | 80.81 |
+| Qwen3-4B | 88.25 | 89.04 | 86.12 | 86.85 | 87.48 |
+| Qwen3-8B | 88.58 | 88.21 | 88.27 | 86.88 | 88.83 |
+| Llama-3.2-1B-Instruct | 48.19 | 45.50 | 17.83 | 2.90 | 47.75 |
+| Llama-3.2-3B-Instruct | 71.04 | 69.42 | 65.96 | 64.71 | 68.98 |
+
+24 of the 25 runs score higher than in free mode; FP16 rises for every model, most for Llama-3.2-3B
+(+39.66 points). The exception is Llama-3.2-1B GPTQ (11.40 to 2.90): under the constraint it answers
+with an empty list (no call) on 1,112 of the 1,150 AST questions. Only 93 of the 34,750 answers do not
+parse: 81 were cut off at 4,096 tokens (mostly calls repeated without end) and 12 stopped early. The
+tests and the split into syntactic and semantic failures are Update 10.
+
+**Next (Update 10, planned Wed 4 Nov):** headline result: how much of the quantization penalty
+constrained decoding removes.
+
+---
+
 ## Update 8: Accuracy drop by precision and model size (midpoint)
 Planned: Wed 28 Oct · Pushed: Tue 3 Nov (delayed: campus closure and illness)
 

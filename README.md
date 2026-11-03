@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 5 of 9: quantization sweep, failure classifier and significance tests done; constrained runs under way · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 5 of 9: quantization sweep, failure classifier, significance tests and constrained runs done; free vs. constrained comparison under way · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 

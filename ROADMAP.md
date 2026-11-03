@@ -22,7 +22,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 8 (Wed 28 Oct):** **midpoint**: accuracy drop by precision and model size; paper outline (pushed Tue 3 Nov)
 
 ## Week 5 (1-7 Nov): Constrained decoding
-- [ ] **Update 9 (Mon 2 Nov):** JSON-schema-constrained runs for all model x precision combinations; Setup section
+- [x] **Update 9 (Mon 2 Nov):** JSON-schema-constrained runs for all model x precision combinations; Setup section (pushed Tue 3 Nov)
 - [ ] **Update 10 (Wed 4 Nov):** **headline result**: how much of the quantization penalty constrained decoding removes
 
 ## Week 6 (8-14 Nov): Schema-stress suite

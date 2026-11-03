@@ -71,23 +71,63 @@ Supervisor: Dr.\ Mohammad Shifat-E-Rabbi}}
 \end{itemize}
 
 \section{Experimental Setup}\label{sec:setup}
-\textit{Written in Update 9.}
-\begin{itemize}
-  \item Models: Qwen3-1.7B, Qwen3-4B, Qwen3-8B (thinking off) and Llama-3.2-1B/3B-Instruct (fixed date in
-        the chat template), at pinned revisions.
-  \item Precisions: FP16 (the T4 has no BF16); INT8 (bitsandbytes, pre-quantized checkpoint); NF4
-        (bitsandbytes, quantized by vLLM while loading); GPTQ and AWQ (4-bit, groups of 128, GPTQModel 5.7.0,
-        the same calibration documents). Qwen3-8B AWQ needed three memory and overflow settings
-        (\texttt{notes/decisions.md}).
-  \item Benchmark: BFCL non-live, 1,390 questions (1,150 AST and 240 irrelevance), bfcl-eval 2026.3.23; our
-        own runner with a strict JSON-array prompt format; scored with BFCL's AST checker. Overall = BFCL's
-        Non-Live Overall Acc; irrelevance reported on its own.
-  \item Serving: vLLM 0.8.5 on Kaggle T4 GPUs; greedy decoding, seed 42, at most 4,096 answer tokens.
-  \item Constrained mode: vLLM guided decoding (xgrammar) with the JSON schema built from each question's
-        functions.
-  \item Check of the harness: BFCL reproduced on a T4 within one question per category of the leaderboard
-        (Update 2).
-\end{itemize}
+% Written in Update 9. Every value below is in configs/, src/ or results/meta/.
+
+\subsection{Models}
+We study five instruction-tuned models from two families: Qwen3-1.7B, Qwen3-4B and Qwen3-8B, and
+Llama-3.2-1B-Instruct and Llama-3.2-3B-Instruct. Each model is pinned to one Hugging Face revision.
+Qwen3 runs with its thinking mode switched off, so that every model answers directly. Llama's chat
+template writes the current date into the system prompt, so we fix that date, and every run sees the
+same prompt.
+
+\subsection{Precisions}
+Each model runs at five precisions (Table~\ref{tab:precisions}). FP16 is the baseline, because the
+T4 GPU does not support BF16. INT8 uses bitsandbytes 8-bit weights (outlier threshold 6.0); vLLM
+loads such models only when they are already quantized, so we save the checkpoint first. NF4 uses
+bitsandbytes 4-bit NormalFloat, which vLLM applies while loading the FP16 weights. GPTQ and AWQ
+use 4-bit weights in groups of 128, made with GPTQModel 5.7.0: GPTQ is symmetric without activation
+reordering, and AWQ uses zero points and the GEMM format. Both methods use the same calibration
+data for every model: the first 256 documents of at least 3,000 characters from one file of
+C4 (English), each cut to 512 tokens. Qwen3-8B AWQ needed three further settings, all about memory
+or numerical overflow on the T4; its quantization settings and calibration data are unchanged.
+
+\begin{table}[t]
+\centering
+\caption{The five precisions}\label{tab:precisions}
+\begin{tabular}{lll}
+\toprule
+Precision & Weights & Made by \\
+\midrule
+FP16 & 16-bit & --- \\
+INT8 & 8-bit, per row & bitsandbytes, saved first \\
+NF4  & 4-bit, blocks of 64 & bitsandbytes, while loading \\
+GPTQ & 4-bit, groups of 128 & GPTQModel \\
+AWQ  & 4-bit, groups of 128 & GPTQModel \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Benchmark and scoring}
+We use the 1,390 non-live questions of the Berkeley Function Calling Leaderboard (BFCL, bfcl-eval
+2026.3.23): 1,150 AST questions (simple in Python, Java and JavaScript; multiple; parallel;
+parallel-multiple) and 240 irrelevance questions, where no function fits and the right answer is
+no call. Our own runner gives the model the functions and asks for a JSON array of calls, using
+BFCL's default prompt wording with only the output format changed. The parser accepts only that
+array, with surrounding whitespace and at most one Markdown code fence; it repairs nothing, so a
+malformed answer counts as a failure. Parsed answers are scored with BFCL's own AST checker. We
+report BFCL's Non-Live Overall accuracy (the unweighted mean of simple, multiple, parallel and
+parallel-multiple, where simple is the mean of its three languages) and irrelevance accuracy on its
+own. On Qwen3-4B-Instruct-2507, BFCL's own harness reproduced the leaderboard on our hardware, and
+our runner scored within 1.5 points of BFCL's function-calling mode.
+
+\subsection{Inference}
+All runs use vLLM 0.8.5 on NVIDIA T4 GPUs (16\,GB) on Kaggle: one GPU per run, except FP16
+Qwen3-8B, which is split across two. Decoding is greedy (temperature 0, seed 42), with at most
+4,096 answer tokens, the same budget as BFCL. In constrained mode, vLLM's guided decoding with the
+XGrammar backend forces every answer to match a JSON schema built from the question's functions:
+an array of calls, each naming one of the given functions, with its arguments typed as declared
+and no extra arguments. The prompt is the same in both modes, so the constraint is the only
+difference.
 
 \section{Method}\label{sec:method}
 \textit{Drafted in Update 13.}

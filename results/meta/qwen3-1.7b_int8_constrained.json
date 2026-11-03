@@ -1,0 +1,123 @@
+{
+  "run_id": "qwen3-1.7b_int8_constrained",
+  "config_file": "configs/qwen3-1.7b_int8.yaml",
+  "config": {
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "precision": "int8",
+    "dtype": "half",
+    "quantization": "bitsandbytes",
+    "quantize": {
+      "method": "bnb-int8",
+      "llm_int8_threshold": 6.0
+    },
+    "tensor_parallel_size": 1,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "llm_kwargs": {
+      "enforce_eager": true
+    },
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": -1,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0,
+      "seed": 42,
+      "max_tokens": 4096
+    }
+  },
+  "model": "Qwen/Qwen3-1.7B",
+  "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "precision": "int8",
+  "quantized_checkpoint": {
+    "config_file": "configs/qwen3-1.7b_int8.yaml",
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "method": "bnb-int8",
+    "settings": {
+      "method": "bnb-int8",
+      "llm_int8_threshold": 6.0
+    },
+    "calibration": null,
+    "started_utc": "2026-11-02T20:42:23+00:00",
+    "seconds": 16.3,
+    "size_gib": 1.909,
+    "versions": {
+      "python": "3.11.18",
+      "vllm": "0.8.5",
+      "torch": "2.6.0",
+      "transformers": "4.51.3",
+      "bfcl-eval": "2026.3.23",
+      "xgrammar": "0.1.18",
+      "bitsandbytes": "0.45.5",
+      "accelerate": "1.6.0",
+      "gptqmodel": null
+    }
+  },
+  "mode": "constrained",
+  "guided_decoding_backend": "xgrammar:disable-any-whitespace,no-fallback",
+  "prompt_format": "json-array-v1",
+  "categories": [
+    "simple_python",
+    "simple_java",
+    "simple_javascript",
+    "multiple",
+    "parallel",
+    "parallel_multiple",
+    "irrelevance"
+  ],
+  "limit_per_category": null,
+  "n_questions": 1390,
+  "sampling_params": "SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=-1, min_p=0.0, seed=42, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=4096, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None)",
+  "started_utc": "2026-11-02T20:42:40+00:00",
+  "finished_utc": "2026-11-02T21:14:32+00:00",
+  "model_load_seconds": 21.3,
+  "generation_seconds": 1876.9,
+  "prompt_tokens": 639699,
+  "output_tokens": 78709,
+  "output_tokens_per_second": 41.9,
+  "finish_reasons": {
+    "stop": 1388,
+    "length": 2
+  },
+  "memory": {
+    "model_weights_gib": 1.9027,
+    "activation_peak_gib": 1.42,
+    "kv_cache_gib": 9.73,
+    "gpus_after_run": [
+      {
+        "index": 0,
+        "used_mib": 14909,
+        "total_mib": 15360
+      },
+      {
+        "index": 1,
+        "used_mib": 3,
+        "total_mib": 15360
+      }
+    ]
+  },
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "versions": {
+    "python": "3.11.18",
+    "vllm": "0.8.5",
+    "torch": "2.6.0",
+    "transformers": "4.51.3",
+    "bfcl-eval": "2026.3.23",
+    "xgrammar": "0.1.18",
+    "bitsandbytes": "0.45.5",
+    "accelerate": "1.6.0",
+    "gptqmodel": null
+  },
+  "code": {
+    "commit": "d7abb529905ee8390e247767d72b1106e6748e29",
+    "uncommitted_changes": false
+  }
+}
