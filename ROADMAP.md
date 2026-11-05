@@ -23,7 +23,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 5 (1-7 Nov): Constrained decoding
 - [x] **Update 9 (Mon 2 Nov):** JSON-schema-constrained runs for all model x precision combinations; Setup section (pushed Tue 3 Nov)
-- [ ] **Update 10 (Wed 4 Nov):** **headline result**: how much of the quantization penalty constrained decoding removes
+- [x] **Update 10 (Wed 4 Nov):** **headline result**: how much of the quantization penalty constrained decoding removes
 
 ## Week 6 (8-14 Nov): Schema-stress suite
 - [ ] **Update 11 (Mon 9 Nov):** stress suite v1 (~150 cases, 6 failure classes); Introduction drafted

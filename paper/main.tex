@@ -33,7 +33,9 @@ Supervisor: Dr.\ Mohammad Shifat-E-Rabbi}}
         paired significance tests.
   \item Findings so far: Qwen3-4B and Qwen3-8B stay within 2.35 points of FP16 at every precision; the
         three smaller models move by up to 33 points, mostly through format; 11 of 20 changes are significant.
-  \item Headline (Update 10): how much of the quantization penalty constrained decoding removes.
+  \item Headline: constrained decoding removes a quantization loss only when it is a format error over the
+        right content (68--111\% of three significant losses removed); it leaves content losses unchanged, and
+        it makes two losses larger, where the model answers with no call instead.
 \end{itemize}
 \end{abstract}
 
@@ -139,8 +141,9 @@ difference.
   \item Statistics: McNemar's exact test on the 1,150 AST questions, paired by question, with Holm's
         correction over the 20 comparisons; bootstrap 95\% intervals for the change in Overall
         (10,000 resamples inside each category).
-  \item Constrained-decoding gap (Update 10): the penalty in free mode, the penalty in constrained mode, and the
-        share of the penalty that constrained decoding closes.
+  \item Constrained-decoding gap: the penalty (change from FP16 of the same model and mode) in free and in
+        constrained mode; their difference with a bootstrap 95\% interval (the same resampled questions for all
+        four runs); and, for the significant free losses, the share of the loss removed.
 \end{itemize}
 
 \section{Results}\label{sec:results}
@@ -194,11 +197,24 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
 \end{figure}
 
 \subsection{Constrained decoding (RQ3)}
-\textit{Updates 9--10.}
 \begin{itemize}
-  \item Constrained accuracy for all 25 runs; penalty in both modes; share of the penalty closed.
-  \item Do syntactic failures turn into semantic ones (substitution), as earlier work suggests?
+  \item Fig.~\ref{fig:gap}. The constraint raises FP16 for every model (Llama-3.2-3B by 39.66 points) and
+        24 of the 25 runs; syntactic failures fall from 6,844 to 53 (none breaks the schema).
+  \item Of the 7 significant free losses: removed for Qwen3-1.7B INT8 (111\%) and GPTQ (68\%) and
+        Llama-3.2-1B AWQ (98\%); unchanged for Qwen3-4B NF4 and Qwen3-8B GPTQ (content losses); larger for
+        Llama-3.2-1B NF4 ($-20.38 \to -30.36$) and GPTQ ($-25.00 \to -45.29$), which answer with an empty
+        array instead.
+  \item Free-mode gains were format effects: Llama-3.2-3B's $+8.35$ to $+28.14$ become changes below FP16.
+  \item Substitution: semantic failures rise from 4,781 to 8,902; what is left is wrong values (Qwen3), no call
+        (Llama-3.2-1B), and a mix (Llama-3.2-3B). Under the constraint, 8 of the 20 changes are significant.
 \end{itemize}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{constrained_gap.png}
+\caption{Change in Overall accuracy from FP16 with free decoding (open circles) and constrained decoding
+(filled circles), models smallest first.}\label{fig:gap}
+\end{figure}
 
 \subsection{Schema-stress suite (RQ4)}
 \textit{Updates 11--12.}

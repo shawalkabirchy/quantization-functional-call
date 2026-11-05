@@ -1,0 +1,26 @@
+model,precision,syntactic_free,now_right,now_semantic,still_syntactic,right_free_wrong_constrained,wrong_free_right_constrained,classes_of_newly_wrong
+Qwen3-1.7B,FP16,142,102,36,4,0,103,
+Qwen3-1.7B,INT8,167,128,37,2,7,134,M2 5; M3 1; M5 1
+Qwen3-1.7B,NF4,122,89,32,1,5,90,M2 3; M3 1; M5 1
+Qwen3-1.7B,GPTQ,414,279,134,1,3,281,M3 3
+Qwen3-1.7B,AWQ,69,40,28,1,1,43,M2 1
+Qwen3-4B,FP16,8,2,5,1,1,3,M2 1
+Qwen3-4B,INT8,9,4,4,1,7,11,M2 7
+Qwen3-4B,NF4,12,5,6,1,1,6,M3 1
+Qwen3-4B,GPTQ,12,6,5,1,2,6,M2 2
+Qwen3-4B,AWQ,14,6,4,4,1,7,M2 1
+Qwen3-8B,FP16,9,4,5,0,2,5,M2 2
+Qwen3-8B,INT8,12,6,6,0,6,15,M2 5; M3 1
+Qwen3-8B,NF4,11,4,7,0,2,4,M2 1; M3 1
+Qwen3-8B,GPTQ,15,7,8,0,1,8,M2 1
+Qwen3-8B,AWQ,12,5,6,1,1,5,M2 1
+Llama-3.2-1B-Instruct,FP16,314,154,153,7,29,158,M2 4; M3 4; M5 21
+Llama-3.2-1B-Instruct,INT8,345,145,191,9,93,181,M2 12; M3 10; M5 71
+Llama-3.2-1B-Instruct,NF4,545,113,430,2,157,115,M2 4; M3 3; M5 150
+Llama-3.2-1B-Instruct,GPTQ,788,20,768,0,143,21,M5 143
+Llama-3.2-1B-Instruct,AWQ,756,374,373,9,45,380,M2 5; M3 16; M5 23; S1 1
+Llama-3.2-3B-Instruct,FP16,746,583,162,1,48,589,M2 3; M3 26; M5 19
+Llama-3.2-3B-Instruct,INT8,721,555,166,0,55,560,M2 1; M3 34; M5 20
+Llama-3.2-3B-Instruct,NF4,389,283,106,0,89,290,M1 1; M2 5; M3 69; M5 14
+Llama-3.2-3B-Instruct,GPTQ,278,181,96,1,128,197,M2 12; M3 66; M5 50
+Llama-3.2-3B-Instruct,AWQ,598,438,159,1,47,441,M2 1; M3 36; M5 10

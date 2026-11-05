@@ -5,6 +5,45 @@ meeting.
 
 ---
 
+## Update 10: How much of the quantization penalty constrained decoding removes (headline)
+Planned: Wed 4 Nov · Pushed: Wed 4 Nov
+
+**Done:**
+- Free vs. constrained for all 20 quantized runs: the change from FP16 in each mode, their difference with a
+  bootstrap 95% interval, and the share of each significant free loss that the constraint removes
+  ([`src/gap.py`](src/gap.py), [report](results/constrained_vs_free.md), [table](results/gap.csv),
+  [figure](results/figures/constrained_gap.png))
+- What happens under the constraint to the answers that failed on format ([transitions](results/transitions.csv))
+- Failure classes and significance tests for the 25 constrained runs
+  ([classes](results/taxonomy_constrained.csv), [figure](results/figures/taxonomy_constrained.png),
+  [tests](results/significance_constrained.csv), [figure](results/figures/penalty_by_size_constrained.png))
+- Results section of the paper outline filled in for RQ3 ([`paper/main.tex`](paper/main.tex))
+
+**Result:** the constraint removes a quantization loss only when the loss is a format error over the right content.
+
+| Significant free loss | Free change | Constrained change | Loss removed |
+|---|---:|---:|---:|
+| Qwen3-1.7B INT8 | -3.14 | +0.33 | 111% |
+| Qwen3-1.7B GPTQ | -33.31 | -10.81 | 68% |
+| Llama-3.2-1B-Instruct AWQ | -18.59 | -0.44 | 98% |
+| Qwen3-4B NF4 | -2.35 | -2.13 | 9% (not different from 0) |
+| Qwen3-8B GPTQ | -2.31 | -1.70 | 26% (not different from 0) |
+| Llama-3.2-1B-Instruct NF4 | -20.38 | -30.36 | -49% (larger) |
+| Llama-3.2-1B-Instruct GPTQ | -25.00 | -45.29 | -81% (larger) |
+
+Format losses with the right content underneath go away (Qwen3-1.7B GPTQ: 279 of its 414 format failures become
+right). Content losses stay (Qwen3-4B, Qwen3-8B). Llama-3.2-1B NF4 and GPTQ get worse: forced to write valid
+JSON, they answer with no call. The free-mode gains of Llama-3.2-3B (+8.35 to +28.14) disappear, because the
+constraint fixes FP16's format errors too. Syntactic failures fall from 6,844 to 53, but semantic ones rise from
+4,781 to 8,902: the constraint fixes the format and shows the content errors behind it. Under the constraint,
+8 of the 20 changes are significant.
+
+**For the meeting:** is this the headline for the paper? Next is the schema-stress suite (Updates 11-12).
+
+**Next (Update 11, planned Mon 9 Nov):** stress suite v1 (about 150 cases, 6 failure classes); Introduction drafted.
+
+---
+
 ## Update 9: Constrained decoding for all 25 combinations
 Planned: Mon 2 Nov · Pushed: Tue 3 Nov (delayed: campus closure and illness)
 

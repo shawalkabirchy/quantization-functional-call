@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 5 of 9: quantization sweep, failure classifier, significance tests and constrained runs done; free vs. constrained comparison under way · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 5 of 9: quantization sweep, failure classifier, significance tests, constrained runs and the free vs. constrained comparison done; schema-stress suite next · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -58,7 +58,8 @@ baseline.
 
 Rule: output that fails JSON parsing or schema validation is **syntactic**. Output that passes the
 schema but fails the BFCL checker is **semantic**. Classifier: [`src/taxonomy.py`](src/taxonomy.py);
-results for the free runs: [`results/taxonomy_free.md`](results/taxonomy_free.md).
+results for the free runs: [`results/taxonomy_free.md`](results/taxonomy_free.md); free vs. constrained:
+[`results/constrained_vs_free.md`](results/constrained_vs_free.md).
 
 ## Repository layout
 
@@ -85,6 +86,8 @@ python src/taxonomy.py --mode free                                      # failur
 python src/figures.py taxonomy --mode free                              # figure (needs matplotlib)
 python src/significance.py --mode free                                  # tests -> results/significance_free.csv
 python src/figures.py penalty --mode free                               # change from FP16, by model size
+python src/gap.py                                                       # free vs. constrained -> results/gap.csv
+python src/figures.py gap                                               # both changes from FP16 in one figure
 ```
 
 `--mode constrained` forces every answer to match the functions' JSON schema. Every run also saves

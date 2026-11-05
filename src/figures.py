@@ -3,6 +3,7 @@
 Usage (from the repository root):
     python src/figures.py taxonomy --mode free
     python src/figures.py penalty --mode free     # needs results/significance_<mode>.csv (src/significance.py)
+    python src/figures.py gap                     # needs results/gap.csv (src/gap.py); free and constrained
 """
 
 import argparse
@@ -124,13 +125,59 @@ def penalty(mode, results_dir):
     print(f"Saved {out}")
 
 
+def gap(mode, results_dir):
+    """Change from FP16 with free decoding (open circle) and with constrained decoding (filled circle)."""
+    with open(results_dir / "gap.csv", newline="", encoding="utf-8") as f:
+        rows = {(r["model"], r["precision"]): r for r in csv.DictReader(f)}
+
+    fig, ax = plt.subplots(figsize=(9, 5.2), facecolor=SURFACE)
+    ax.set_facecolor(SURFACE)
+    step = 0.21
+    for x, model in enumerate(BY_SIZE):
+        for i, (precision, color) in enumerate(PRECISION_COLORS.items()):
+            r = rows.get((MODELS[model], precision))
+            if r is None:
+                continue
+            pos = x + (i - 1.5) * step
+            free, constrained = float(r["change_free"]), float(r["change_constrained"])
+            ax.plot([pos, pos], [free, constrained], color=color, linewidth=1.6, solid_capstyle="butt", zorder=2)
+            ax.plot(pos, free, "o", markersize=6.5, markerfacecolor=SURFACE, markeredgecolor=color,
+                    markeredgewidth=1.6, zorder=3)
+            ax.plot(pos, constrained, "o", markersize=6.5, color=color, markeredgecolor=SURFACE,
+                    markeredgewidth=1, zorder=4)
+    ax.axhline(0, color=INK, linewidth=0.9, zorder=1)
+    ax.set_xticks(range(len(BY_SIZE)), [MODELS[m].replace("-Instruct", "") for m in BY_SIZE], fontsize=9, color=INK)
+    ax.set_ylabel("Change in Overall accuracy from FP16 (points)", fontsize=9.5, color=MUTED)
+    ax.set_xlabel("Models, smallest first", fontsize=9.5, color=MUTED)
+    ax.grid(axis="y", color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    ax.tick_params(length=0, colors=MUTED)
+    for side in ax.spines.values():
+        side.set_visible(False)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for c in PRECISION_COLORS.values()]
+    handles += [plt.Line2D([], [], linestyle="none", marker="o", markersize=6.5, markerfacecolor=SURFACE,
+                           markeredgecolor=MUTED, markeredgewidth=1.6),
+                plt.Line2D([], [], linestyle="none", marker="o", markersize=6.5, color=MUTED)]
+    labels = list(PRECISION_COLORS) + ["free decoding", "constrained decoding"]
+    fig.legend(handles, labels, loc="upper center", ncol=6, frameon=False, fontsize=9, labelcolor=INK,
+               bbox_to_anchor=(0.53, 0.99), handlelength=1.6)
+    fig.text(0.99, 0.01, "Each change is from FP16 of the same model in the same decoding mode.",
+             ha="right", va="bottom", fontsize=7.5, color=MUTED)
+    fig.subplots_adjust(left=0.09, right=0.98, top=0.9, bottom=0.14)
+
+    out = results_dir / "figures" / "constrained_gap.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200)
+    print(f"Saved {out}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("figure", choices=["taxonomy", "penalty"])
+    parser.add_argument("figure", choices=["taxonomy", "penalty", "gap"])
     parser.add_argument("--mode", default="free", choices=["free", "constrained"])
     parser.add_argument("--results-dir", type=Path, default=REPO / "results")
     args = parser.parse_args()
-    {"taxonomy": taxonomy, "penalty": penalty}[args.figure](args.mode, args.results_dir)
+    {"taxonomy": taxonomy, "penalty": penalty, "gap": gap}[args.figure](args.mode, args.results_dir)
 
 
 if __name__ == "__main__":
