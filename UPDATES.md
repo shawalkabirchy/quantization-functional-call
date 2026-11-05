@@ -6,7 +6,7 @@ meeting.
 ---
 
 ## Update 10: How much of the quantization penalty constrained decoding removes (headline)
-Planned: Wed 4 Nov · Pushed: Wed 4 Nov
+Planned: Wed 4 Nov · Pushed: Thu 5 Nov
 
 **Done:**
 - Free vs. constrained for all 20 quantized runs: the change from FP16 in each mode, their difference with a
