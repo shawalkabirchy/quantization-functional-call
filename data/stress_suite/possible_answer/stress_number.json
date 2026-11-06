@@ -1,0 +1,25 @@
+{"id": "stress_number_0", "ground_truth": [{"set_stock_level": {"sku": ["SKU-513"], "quantity": [9983]}}]}
+{"id": "stress_number_1", "ground_truth": [{"set_stock_level": {"sku": ["SKU-376"], "quantity": [38]}}]}
+{"id": "stress_number_2", "ground_truth": [{"adjust_points": {"member_id": ["MBR-6115"], "change": [-27]}}]}
+{"id": "stress_number_3", "ground_truth": [{"adjust_points": {"member_id": ["MBR-8099"], "change": [332]}}]}
+{"id": "stress_number_4", "ground_truth": [{"set_stock_level": {"sku": ["SKU-431"], "quantity": [17913]}}]}
+{"id": "stress_number_5", "ground_truth": [{"set_stock_level": {"sku": ["SKU-676"], "quantity": [19]}}]}
+{"id": "stress_number_6", "ground_truth": [{"adjust_points": {"member_id": ["MBR-7295"], "change": [-12]}}]}
+{"id": "stress_number_7", "ground_truth": [{"adjust_points": {"member_id": ["MBR-4239"], "change": [85]}}]}
+{"id": "stress_number_8", "ground_truth": [{"set_thermostat": {"zone": ["D"], "temperature_c": [-7.75]}}]}
+{"id": "stress_number_9", "ground_truth": [{"set_thermostat": {"zone": ["C"], "temperature_c": [7.88]}}]}
+{"id": "stress_number_10", "ground_truth": [{"set_price": {"sku": ["SKU-220"], "price": [1502.54]}}]}
+{"id": "stress_number_11", "ground_truth": [{"set_price": {"sku": ["SKU-267"], "price": [0.022]}}]}
+{"id": "stress_number_12", "ground_truth": [{"set_thermostat": {"zone": ["E"], "temperature_c": [-22.76]}}]}
+{"id": "stress_number_13", "ground_truth": [{"set_thermostat": {"zone": ["C"], "temperature_c": [-18.72]}}]}
+{"id": "stress_number_14", "ground_truth": [{"set_price": {"sku": ["SKU-231"], "price": [1319.48]}}]}
+{"id": "stress_number_15", "ground_truth": [{"set_price": {"sku": ["SKU-747"], "price": [0.085]}}]}
+{"id": "stress_number_16", "ground_truth": [{"add_line_item": {"sku": ["SKU-934"], "quantity": [6], "unit_price": [6.75]}}]}
+{"id": "stress_number_17", "ground_truth": [{"log_run": {"distance_km": [29.6], "duration_minutes": [173]}}]}
+{"id": "stress_number_18", "ground_truth": [{"add_line_item": {"sku": ["SKU-267"], "quantity": [32], "unit_price": [19.14]}}]}
+{"id": "stress_number_19", "ground_truth": [{"log_run": {"distance_km": [8.8], "duration_minutes": [183]}}]}
+{"id": "stress_number_20", "ground_truth": [{"add_line_item": {"sku": ["SKU-456"], "quantity": [4], "unit_price": [65.53]}}]}
+{"id": "stress_number_21", "ground_truth": [{"log_run": {"distance_km": [22.4], "duration_minutes": [153]}}]}
+{"id": "stress_number_22", "ground_truth": [{"add_line_item": {"sku": ["SKU-234"], "quantity": [38], "unit_price": [30.18]}}]}
+{"id": "stress_number_23", "ground_truth": [{"log_run": {"distance_km": [27.7], "duration_minutes": [33]}}]}
+{"id": "stress_number_24", "ground_truth": [{"add_line_item": {"sku": ["SKU-734"], "quantity": [2], "unit_price": [35.17]}}]}

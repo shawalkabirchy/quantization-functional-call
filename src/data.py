@@ -1,8 +1,12 @@
-"""Load BFCL questions, function definitions and possible answers by category.
+"""Load questions, function definitions and possible answers by category.
 
-Everything comes from the installed bfcl-eval package (pinned to 2026.3.23), so the questions and the
-answer key are exactly the ones `bfcl generate` and `bfcl evaluate` use.
+BFCL's categories come from the installed bfcl-eval package (pinned to 2026.3.23), so the questions and the
+answer key are exactly the ones `bfcl generate` and `bfcl evaluate` use. The schema-stress suite (Update 11)
+comes from data/stress_suite/, made by src/stress_suite.py in the same layout.
 """
+
+import json
+from pathlib import Path
 
 from bfcl_eval.utils import (
     is_java,
@@ -22,19 +26,46 @@ NON_LIVE = [
     "parallel_multiple",  # 200
     "irrelevance",        # 240
 ]
-GROUPS = {"non_live": NON_LIVE}
+# Our schema-stress suite: 25 questions each (see src/stress_suite.py)
+STRESS = [
+    "stress_plain",     # control: flat function, no stressed feature
+    "stress_nested",
+    "stress_enum",
+    "stress_number",
+    "stress_optional",
+    "stress_unicode",
+    "stress_menu",      # 50 functions to choose from
+]
+CATEGORIES = NON_LIVE + STRESS
+GROUPS = {"non_live": NON_LIVE, "stress": STRESS}
+STRESS_DIR = Path(__file__).resolve().parents[1] / "data" / "stress_suite"
 
 
 def expand_categories(names):
-    """Turn names like ["non_live"] or ["simple_python", "parallel"] into a list of categories."""
+    """Turn names like ["non_live"], ["stress"] or ["simple_python", "parallel"] into a list of categories."""
     categories = []
     for name in names:
         for category in GROUPS.get(name, [name]):
-            if category not in NON_LIVE:
-                raise ValueError(f"Unsupported category {category!r}. Use non_live or any of: {', '.join(NON_LIVE)}")
+            if category not in CATEGORIES:
+                raise ValueError(f"Unsupported category {category!r}. Use non_live, stress or any of: "
+                                 f"{', '.join(CATEGORIES)}")
             if category not in categories:
                 categories.append(category)
     return categories
+
+
+def checker_category(category):
+    """The category name to give BFCL's checker, which picks its checker by name.
+
+    The menu questions have many functions and one correct call, like BFCL's "multiple"; the other stress
+    groups have one function and one call, like "simple".
+    """
+    return "multiple" if category == "stress_menu" else category
+
+
+def _read_lines(path):
+    with open(path, encoding="utf-8") as f:
+        return [json.loads(line) for line in f]
 
 
 def language(category):
@@ -51,10 +82,14 @@ def load_questions(category):
 
     BFCL adds a language hint to every function description, and for Java and JavaScript it changes every
     parameter type to "string" (its checker converts the strings back). BFCL shows the model these
-    versions in both prompt and FC mode, so we do the same.
+    versions in both prompt and FC mode, so we do the same. The stress suite has no language hint.
     """
+    if category in STRESS:
+        entries = _read_lines(STRESS_DIR / f"{category}.json")
+    else:
+        entries = load_dataset_entry(category, include_prereq=False, include_language_specific_hint=True)
     questions = []
-    for entry in load_dataset_entry(category, include_prereq=False, include_language_specific_hint=True):
+    for entry in entries:
         if len(entry["question"]) != 1:
             raise ValueError(f"{entry['id']}: expected a single-turn question")
         questions.append({
@@ -72,6 +107,10 @@ def load_answer_key(category):
     The checker gets the definitions without the language hint, exactly as in `bfcl evaluate`.
     Irrelevance questions have no possible answers: the correct reply makes no call.
     """
+    if category in STRESS:
+        answers = {a["id"]: a["ground_truth"] for a in _read_lines(STRESS_DIR / "possible_answer" / f"{category}.json")}
+        return {e["id"]: {"functions": e["function"], "ground_truth": answers[e["id"]]}
+                for e in _read_lines(STRESS_DIR / f"{category}.json")}
     entries = load_dataset_entry(category, include_prereq=False, include_language_specific_hint=False)
     if is_relevance_or_irrelevance(category):
         return {e["id"]: {"functions": e["function"], "ground_truth": None} for e in entries}

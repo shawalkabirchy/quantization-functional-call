@@ -1,0 +1,25 @@
+{"id": "stress_enum_0", "ground_truth": [{"route_ticket": {"ticket_id": ["TCK-9697"], "queue": ["Q3"]}}]}
+{"id": "stress_enum_1", "ground_truth": [{"set_shipping_service": {"order_id": ["ORD-3774"], "service": ["S4"]}}]}
+{"id": "stress_enum_2", "ground_truth": [{"route_ticket": {"ticket_id": ["TCK-2273"], "queue": ["Q4"]}}]}
+{"id": "stress_enum_3", "ground_truth": [{"set_shipping_service": {"order_id": ["ORD-9464"], "service": ["S4"]}}]}
+{"id": "stress_enum_4", "ground_truth": [{"route_ticket": {"ticket_id": ["TCK-1568"], "queue": ["Q3"]}}]}
+{"id": "stress_enum_5", "ground_truth": [{"set_shipping_service": {"order_id": ["ORD-9755"], "service": ["S3"]}}]}
+{"id": "stress_enum_6", "ground_truth": [{"route_ticket": {"ticket_id": ["TCK-3759"], "queue": ["Q4"]}}]}
+{"id": "stress_enum_7", "ground_truth": [{"set_shipping_service": {"order_id": ["ORD-9410"], "service": ["S2"]}}]}
+{"id": "stress_enum_8", "ground_truth": [{"assign_department": {"employee_name": ["Maya Cohen"], "department": ["D10"]}}]}
+{"id": "stress_enum_9", "ground_truth": [{"move_pallet": {"pallet_id": ["PAL-9164"], "warehouse": ["WH02"]}}]}
+{"id": "stress_enum_10", "ground_truth": [{"assign_department": {"employee_name": ["Hugo Bernard"], "department": ["D06"]}}]}
+{"id": "stress_enum_11", "ground_truth": [{"move_pallet": {"pallet_id": ["PAL-9064"], "warehouse": ["WH10"]}}]}
+{"id": "stress_enum_12", "ground_truth": [{"assign_department": {"employee_name": ["Chloe Martin"], "department": ["D11"]}}]}
+{"id": "stress_enum_13", "ground_truth": [{"move_pallet": {"pallet_id": ["PAL-5297"], "warehouse": ["WH11"]}}]}
+{"id": "stress_enum_14", "ground_truth": [{"assign_department": {"employee_name": ["Sam Okafor"], "department": ["D07"]}}]}
+{"id": "stress_enum_15", "ground_truth": [{"move_pallet": {"pallet_id": ["PAL-5156"], "warehouse": ["WH11"]}}]}
+{"id": "stress_enum_16", "ground_truth": [{"assign_department": {"employee_name": ["Quinn Taylor"], "department": ["D11"]}}]}
+{"id": "stress_enum_17", "ground_truth": [{"set_store_region": {"store_id": ["STR-7586"], "region": ["R18"]}}]}
+{"id": "stress_enum_18", "ground_truth": [{"list_product": {"product_id": ["PRD-8083"], "category": ["C06"]}}]}
+{"id": "stress_enum_19", "ground_truth": [{"set_store_region": {"store_id": ["STR-1272"], "region": ["R13"]}}]}
+{"id": "stress_enum_20", "ground_truth": [{"list_product": {"product_id": ["PRD-2005"], "category": ["C29"]}}]}
+{"id": "stress_enum_21", "ground_truth": [{"set_store_region": {"store_id": ["STR-2437"], "region": ["R29"]}}]}
+{"id": "stress_enum_22", "ground_truth": [{"list_product": {"product_id": ["PRD-4164"], "category": ["C10"]}}]}
+{"id": "stress_enum_23", "ground_truth": [{"set_store_region": {"store_id": ["STR-3190"], "region": ["R13"]}}]}
+{"id": "stress_enum_24", "ground_truth": [{"list_product": {"product_id": ["PRD-6439"], "category": ["C18"]}}]}

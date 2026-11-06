@@ -1,0 +1,25 @@
+{"id": "stress_nested_0", "ground_truth": [{"create_contact": {"contact": [{"name": ["Jonas Berg"], "email": ["jonas.berg@example.com"], "city": ["Lima"]}]}}]}
+{"id": "stress_nested_1", "ground_truth": [{"register_device": {"device": [{"serial_number": ["SN-317375"], "model": ["Nova S"], "owner": ["Tara Singh"]}]}}]}
+{"id": "stress_nested_2", "ground_truth": [{"create_contact": {"contact": [{"name": ["Jonas Berg"], "email": ["jonas.berg@example.com"], "city": ["Malmo"]}]}}]}
+{"id": "stress_nested_3", "ground_truth": [{"register_device": {"device": [{"serial_number": ["SN-254456"], "model": ["X200"], "owner": ["Ana Silva"]}]}}]}
+{"id": "stress_nested_4", "ground_truth": [{"create_contact": {"contact": [{"name": ["Ben Carter"], "email": ["ben.carter@example.com"], "city": ["Cairo"]}]}}]}
+{"id": "stress_nested_5", "ground_truth": [{"register_device": {"device": [{"serial_number": ["SN-574730"], "model": ["X200"], "owner": ["Jonas Berg"]}]}}]}
+{"id": "stress_nested_6", "ground_truth": [{"create_contact": {"contact": [{"name": ["Noah Fischer"], "email": ["noah.fischer@example.com"], "city": ["Lisbon"]}]}}]}
+{"id": "stress_nested_7", "ground_truth": [{"add_order_items": {"order_id": ["ORD-1118"], "items": [[{"sku": ["SKU-744"], "quantity": [6]}, {"sku": ["SKU-157"], "quantity": [6]}]]}}]}
+{"id": "stress_nested_8", "ground_truth": [{"plan_trip": {"stops": [[{"city": ["Lyon"], "nights": [2]}, {"city": ["Tucson"], "nights": [2]}]]}}]}
+{"id": "stress_nested_9", "ground_truth": [{"add_order_items": {"order_id": ["ORD-3644"], "items": [[{"sku": ["SKU-132"], "quantity": [5]}, {"sku": ["SKU-928"], "quantity": [7]}]]}}]}
+{"id": "stress_nested_10", "ground_truth": [{"plan_trip": {"stops": [[{"city": ["Accra"], "nights": [3]}, {"city": ["Bergen"], "nights": [1]}]]}}]}
+{"id": "stress_nested_11", "ground_truth": [{"add_order_items": {"order_id": ["ORD-3156"], "items": [[{"sku": ["SKU-683"], "quantity": [8]}, {"sku": ["SKU-392"], "quantity": [9]}, {"sku": ["SKU-467"], "quantity": [3]}]]}}]}
+{"id": "stress_nested_12", "ground_truth": [{"plan_trip": {"stops": [[{"city": ["Lisbon"], "nights": [3]}, {"city": ["Oslo"], "nights": [5]}]]}}]}
+{"id": "stress_nested_13", "ground_truth": [{"ship_parcel": {"parcel": [{"tracking_code": ["TRK-960612"], "destination": [{"city": "Quito", "postal_code": "91936"}]}]}}]}
+{"id": "stress_nested_14", "ground_truth": [{"create_order": {"order": [{"order_id": ["ORD-5758"], "customer": [{"name": "Grace Lee", "email": "grace.lee@example.com"}]}]}}]}
+{"id": "stress_nested_15", "ground_truth": [{"ship_parcel": {"parcel": [{"tracking_code": ["TRK-838386"], "destination": [{"city": "Durban", "postal_code": "37527"}]}]}}]}
+{"id": "stress_nested_16", "ground_truth": [{"create_order": {"order": [{"order_id": ["ORD-7143"], "customer": [{"name": "Rosa Diaz", "email": "rosa.diaz@example.com"}]}]}}]}
+{"id": "stress_nested_17", "ground_truth": [{"ship_parcel": {"parcel": [{"tracking_code": ["TRK-616577"], "destination": [{"city": "Tampa", "postal_code": "45233"}]}]}}]}
+{"id": "stress_nested_18", "ground_truth": [{"create_order": {"order": [{"order_id": ["ORD-5093"], "customer": [{"name": "Quinn Taylor", "email": "quinn.taylor@example.com"}]}]}}]}
+{"id": "stress_nested_19", "ground_truth": [{"create_event": {"event": [{"title": ["Science Fair"], "venue": [{"name": "Riverside Center", "address": {"street": "95 Main Street", "city": "Hanoi"}}]}]}}]}
+{"id": "stress_nested_20", "ground_truth": [{"open_account": {"account": [{"account_id": ["ACC-376580"], "holder": [{"name": "Kavya Rao", "address": {"city": "Denver", "postal_code": "98970"}}]}]}}]}
+{"id": "stress_nested_21", "ground_truth": [{"create_event": {"event": [{"title": ["Spring Gala"], "venue": [{"name": "City Hall", "address": {"street": "82 Oak Drive", "city": "Kyoto"}}]}]}}]}
+{"id": "stress_nested_22", "ground_truth": [{"open_account": {"account": [{"account_id": ["ACC-804734"], "holder": [{"name": "Hugo Bernard", "address": {"city": "Accra", "postal_code": "89813"}}]}]}}]}
+{"id": "stress_nested_23", "ground_truth": [{"create_event": {"event": [{"title": ["Spring Gala"], "venue": [{"name": "Union Theater", "address": {"street": "15 Harbor Road", "city": "Vienna"}}]}]}}]}
+{"id": "stress_nested_24", "ground_truth": [{"open_account": {"account": [{"account_id": ["ACC-395362"], "holder": [{"name": "Tara Singh", "address": {"city": "Lisbon", "postal_code": "59388"}}]}]}}]}

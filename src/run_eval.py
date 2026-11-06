@@ -1,8 +1,9 @@
-"""Run one model on BFCL questions with vLLM and save the raw outputs.
+"""Run one model on BFCL questions (or the schema-stress suite) with vLLM and save the raw outputs.
 
 Usage (from the repository root, in the BFCL environment):
     python src/run_eval.py --config configs/qwen3-4b_fp16.yaml --mode free
     python src/run_eval.py --config configs/qwen3-4b_fp16.yaml --mode constrained --limit 3
+    python src/run_eval.py --config configs/qwen3-4b_fp16.yaml --mode free --categories stress
 
 Writes results/raw/<run_id>.jsonl (one line per question) and results/meta/<run_id>.json (model and
 revision, software versions, GPU, memory, speed). Score the outputs afterwards with src/score.py.
@@ -64,7 +65,8 @@ def parse_args():
     parser.add_argument("--mode", required=True, choices=["free", "constrained"],
                         help="free: plain decoding; constrained: output forced to match the JSON schema")
     parser.add_argument("--categories", nargs="+", default=["non_live"],
-                        help="non_live (default) or BFCL category names, e.g. simple_python parallel")
+                        help="non_live (default), stress (the schema-stress suite) or category names, "
+                             "e.g. simple_python parallel")
     parser.add_argument("--limit", type=int, help="only the first N questions of each category (quick tests)")
     parser.add_argument("--run-id", help="default: <config name>_<mode>[_<categories>][_limit<N>]")
     parser.add_argument("--results-dir", type=Path, default=REPO / "results")
@@ -105,7 +107,8 @@ def main():
 
     run_id = args.run_id or "_".join(
         [args.config.stem, args.mode]
-        + ([] if args.categories == ["non_live"] else ["-".join(categories)])
+        + ([] if args.categories == ["non_live"] else ["stress"] if args.categories == ["stress"]
+           else ["-".join(categories)])
         + ([f"limit{args.limit}"] if args.limit else [])
     )
     raw_path = args.results_dir / "raw" / f"{run_id}.jsonl"

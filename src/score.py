@@ -16,7 +16,7 @@ from pathlib import Path
 from bfcl_eval.constants.enums import Language
 from bfcl_eval.eval_checker.ast_eval.ast_checker import ast_checker
 
-from data import NON_LIVE, language, load_answer_key
+from data import CATEGORIES, checker_category, language, load_answer_key
 from prompt_format import ParseError, parse_calls, to_bfcl
 
 LANGUAGES = {"python": Language.PYTHON, "java": Language.JAVA, "javascript": Language.JAVASCRIPT}
@@ -53,7 +53,7 @@ def score_reply(category, output, key):
 
     try:
         check = ast_checker(key["functions"], to_bfcl(calls), key["ground_truth"],
-                            LANGUAGES[language(category)], category, CHECKER_MODEL_NAME)
+                            LANGUAGES[language(category)], checker_category(category), CHECKER_MODEL_NAME)
     except Exception as e:  # BFCL's Java/JavaScript type converters can raise on unusual values
         check = {"valid": False, "error": [f"{type(e).__name__}: {e}"], "error_type": "checker_exception"}
     valid = check["valid"]
@@ -86,7 +86,7 @@ def score_run(raw_path, results_dir):
     base = {"run_id": run_id, "model": meta.get("model", ""), "precision": meta.get("precision", ""),
             "mode": meta.get("mode", "")}
     summary, accuracy, complete = [], {}, {}
-    for category in [c for c in NON_LIVE if c in keys]:
+    for category in [c for c in CATEGORIES if c in keys]:
         items = [s for s in scored if s["category"] == category]
         correct = sum(s["valid"] for s in items)
         accuracy[category] = 100 * correct / len(items)

@@ -26,7 +26,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 10 (Wed 4 Nov):** **headline result**: how much of the quantization penalty constrained decoding removes (pushed Thu 5 Nov)
 
 ## Week 6 (8-14 Nov): Schema-stress suite
-- [ ] **Update 11 (Mon 9 Nov):** stress suite v1 (~150 cases, 6 failure classes); Introduction drafted
+- [x] **Update 11 (Mon 9 Nov):** stress suite v1 (~150 cases, 6 failure classes); Introduction drafted (175 questions: 6 groups of 25 and a control group of 25)
 - [ ] **Update 12 (Wed 11 Nov):** stress-suite results by failure class; Related Work section
 
 ## Week 7 (15-21 Nov): Stretch item and accuracy per gigabyte

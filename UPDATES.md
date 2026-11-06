@@ -5,6 +5,36 @@ meeting.
 
 ---
 
+## Update 11: Schema-stress suite v1; Introduction
+Planned: Mon 9 Nov · Pushed: Fri 6 Nov
+
+**Done:**
+- Schema-stress suite v1: 175 questions in 7 groups of 25 ([`data/stress_suite/`](data/stress_suite/README.md)).
+  Six groups each stress one schema feature (nested objects, enum codes, integer vs. float, optional
+  arguments, non-ASCII strings, 50-function menus); the seventh is a plain control without any of them.
+  Each group has 3 or 4 levels, for example the nesting depth or the number of codes
+- The suite is made from templates with fixed seeds by [`src/stress_suite.py`](src/stress_suite.py). Its
+  `--check` confirms that the files are exactly what the generator makes, that BFCL's checker accepts every
+  correct call and the call matches the schema, and that 220 wrong calls are rejected
+- `src/run_eval.py` and `src/score.py` now also run the suite (`--categories stress`). Re-scoring all 50
+  existing runs gives byte-identical scores
+- Kaggle notebook for the runs ([`notebooks/07_stress.ipynb`](notebooks/07_stress.ipynb)): all 25
+  combinations, free and constrained, with a quick check before the long runs. All 175 schemas compile with
+  XGrammar 0.1.18, the version vLLM uses (checked on a PC with the Qwen3 and Llama-3.2 tokenizers)
+- First draft of the paper's Introduction ([`paper/main.tex`](paper/main.tex))
+
+**Result:** the suite is ready to run; the results are Update 12. The longest prompt (a 50-function menu) is
+3,662 tokens, within the 4,096-token prompt budget; every other prompt is under 700.
+
+**Problem:** with a description for each argument, 50 functions need about 4,150 tokens and do not fit, so the
+menu functions have no argument descriptions. Inside objects nested 2 or 3 levels deep, BFCL's checker compares
+strings exactly (elsewhere it ignores case and some punctuation), so those questions state the values exactly.
+
+**Next (Update 12, planned Wed 11 Nov):** run the suite on all 25 combinations in both modes; results by
+group and level; Related Work section.
+
+---
+
 ## Update 10: How much of the quantization penalty constrained decoding removes (headline)
 Planned: Wed 4 Nov · Pushed: Thu 5 Nov
 

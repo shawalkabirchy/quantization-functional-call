@@ -40,24 +40,57 @@ Supervisor: Dr.\ Mohammad Shifat-E-Rabbi}}
 \end{abstract}
 
 \section{Introduction}
-\textit{Drafted in Update 11.}
+% First draft (Update 11). Citations are added as BibTeX in Update 16; the stress-suite results (RQ4) in Update 12.
+Language models that act as agents answer with function calls: a request to book a room, move money or switch a
+device becomes a call with a function name and typed arguments, which a program then executes. On laptops, phones
+and on-premise servers these agents usually run small models, and usually in a quantized form, most often with
+4-bit weights. Quantization is mostly judged by perplexity or chat benchmarks, but a function call is stricter
+than chat: it must be valid JSON, match the function's schema, and carry the right values. When quantization
+breaks a call, the failure is often silent. The reply may not parse, so the action is dropped, or it may parse
+and fit the schema while an argument is wrong, so the wrong action is taken.
+
+Earlier work has measured tool use under quantization. ACBench reports aggregate tool-use scores for GPTQ and
+AWQ models from 2B to 32B parameters and finds only small drops at 4 bits. Less is More reports large drops for a
+quantized Llama-3.1-8B on BFCL questions, but its full-precision and quantized models run on different serving
+stacks. Jang et al.\ count failures per channel for 9B to 35B models in multi-turn tasks, and Wu et al.\ study
+which tool-use decisions flip at 2 to 4 bits. Constrained decoding, which forces a reply to match a JSON schema,
+has been studied at full precision. What these studies leave open is how the function calls of small models fail
+at the common precisions when everything else is held fixed, and whether constrained decoding removes the damage
+that quantization does.
+
+We therefore run five instruction-tuned models from two families (Qwen3-1.7B, 4B and 8B, and Llama-3.2-1B and
+3B) at five precisions (FP16, INT8, NF4, GPTQ and AWQ) and in two decoding modes (free and
+JSON-schema-constrained) on the 1,390 non-live questions of the Berkeley Function Calling Leaderboard (BFCL), all with one
+serving stack (vLLM) on one kind of GPU. We ask four research questions:
+\begin{enumerate}
+  \item[\textbf{RQ1}] How much does function-calling accuracy change at each precision, and does the change depend
+        on model size?
+  \item[\textbf{RQ2}] How much of each change is syntactic (the reply is not valid JSON or does not match the
+        schema), and how much is semantic (a well-formed call that is wrong)?
+  \item[\textbf{RQ3}] How much of the quantization penalty does constrained decoding remove, and which failures
+        remain?
+  \item[\textbf{RQ4}] Which schema features (nested objects, enumerated values, integer and float arguments,
+        optional arguments, non-ASCII strings and large tool menus) break first as precision drops?
+\end{enumerate}
+
+The two larger Qwen3 models stay within 2.35 points of FP16 at every precision, while the three smaller models
+move by up to 33 points, mostly through format; 11 of the 20 changes are statistically significant. Constrained
+decoding removes a quantization loss only when the loss is a format error over the right content: it removes
+68--111\% of three significant losses, leaves the losses of the two larger models unchanged, and makes two losses
+larger, because the forced model answers with no call instead.
+
+Our contributions are:
 \begin{itemize}
-  \item Motivation: local and on-premise agents run 4-bit models; output looks fine, but a field gets the wrong
-        type, an enum drifts, or a tool gets a wrong argument.
-  \item Gap: earlier studies report aggregate tool-calling scores under quantization, or study larger models in
-        multi-turn tasks; none splits the failures of small models by class on one serving stack
-        (Section~\ref{sec:related}). We do not claim to be the first to quantize tool-calling models.
-  \item Research questions:
-  \begin{itemize}
-    \item RQ1: how much does function-calling accuracy change with each precision, and does it depend on
-          model size?
-    \item RQ2: which failures are syntactic (format) and which semantic (content)?
-    \item RQ3: how much of the quantization penalty does JSON-schema-constrained decoding remove?
-    \item RQ4: which schema features break first (stress suite)?
-  \end{itemize}
-  \item Contributions: the controlled sweep; the failure classifier, checked by hand; paired tests; the
-        constrained-decoding comparison; the stress suite; code, configs and result tables released.
+  \item a controlled sweep of 50 runs (5 models $\times$ 5 precisions $\times$ 2 decoding modes) with pinned model
+        revisions, greedy decoding and one serving stack;
+  \item a classifier that sorts every failed call into two syntactic and five semantic classes, checked by hand on
+        80 failures;
+  \item paired significance tests for every change, so that real changes can be told from chance;
+  \item a comparison of free and constrained decoding that shows which quantization losses a schema can remove;
+  \item a schema-stress suite of 175 questions in seven groups, one per schema feature plus a control;
+  \item code, configurations, raw answers and scores, released for reproduction.
 \end{itemize}
+We do not claim to be the first to evaluate quantized models on tool calling (Section~\ref{sec:related}).
 
 \section{Related Work}\label{sec:related}
 \textit{Drafted in Update 12 from \texttt{notes/related\_work.md}.}
@@ -144,6 +177,9 @@ difference.
   \item Constrained-decoding gap: the penalty (change from FP16 of the same model and mode) in free and in
         constrained mode; their difference with a bootstrap 95\% interval (the same resampled questions for all
         four runs); and, for the significant free losses, the share of the loss removed.
+  \item Schema-stress suite: made from templates with fixed seeds by \texttt{src/stress\_suite.py}; each question
+        has one correct call, with every value stated in the question; the answer keys are checked to accept
+        the correct call and reject 220 wrong ones; scored with BFCL's checker, like the main questions.
 \end{itemize}
 
 \section{Results}\label{sec:results}
@@ -217,9 +253,12 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
 \end{figure}
 
 \subsection{Schema-stress suite (RQ4)}
-\textit{Updates 11--12.}
+\textit{Results in Update 12.}
 \begin{itemize}
-  \item About 150 cases in six failure classes; which schema features break first as precision drops.
+  \item 175 questions in seven groups of 25 (\texttt{data/stress\_suite/}): nested objects, enumerated codes,
+        integer vs.\ float, optional arguments, non-ASCII strings, 50-function menus, and a plain control.
+  \item Accuracy per group and precision, relative to the control; then per level inside each group (e.g.\ nesting
+        depth, number of codes); which feature breaks first as precision drops.
 \end{itemize}
 
 \subsection{Memory and speed}

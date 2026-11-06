@@ -1,0 +1,25 @@
+{"id": "stress_plain_0", "ground_truth": [{"book_table": {"restaurant": ["Saffron Lane"], "party_size": [8], "time": ["20:00"]}}]}
+{"id": "stress_plain_1", "ground_truth": [{"get_weather_forecast": {"city": ["Seoul"], "days": [10]}}]}
+{"id": "stress_plain_2", "ground_truth": [{"add_task": {"title": ["Plan team lunch"], "due_date": ["2026-12-03"]}}]}
+{"id": "stress_plain_3", "ground_truth": [{"find_book": {"title": ["Salt and Iron"], "author": ["Leo Marsh"]}}]}
+{"id": "stress_plain_4", "ground_truth": [{"send_email": {"to": ["chloe.martin@example.com"], "subject": ["Contract renewal"]}}]}
+{"id": "stress_plain_5", "ground_truth": [{"book_table": {"restaurant": ["Harbor House"], "party_size": [6], "time": ["21:00"]}}]}
+{"id": "stress_plain_6", "ground_truth": [{"get_weather_forecast": {"city": ["Austin"], "days": [8]}}]}
+{"id": "stress_plain_7", "ground_truth": [{"add_task": {"title": ["Call the plumber"], "due_date": ["2026-12-02"]}}]}
+{"id": "stress_plain_8", "ground_truth": [{"find_book": {"title": ["A Map of Small Things"], "author": ["Iris Vale"]}}]}
+{"id": "stress_plain_9", "ground_truth": [{"send_email": {"to": ["jonas.berg@example.com"], "subject": ["Launch plan"]}}]}
+{"id": "stress_plain_10", "ground_truth": [{"book_table": {"restaurant": ["Olive Tree"], "party_size": [3], "time": ["18:30"]}}]}
+{"id": "stress_plain_11", "ground_truth": [{"get_weather_forecast": {"city": ["Accra"], "days": [10]}}]}
+{"id": "stress_plain_12", "ground_truth": [{"add_task": {"title": ["Submit tax form"], "due_date": ["2026-11-09"]}}]}
+{"id": "stress_plain_13", "ground_truth": [{"find_book": {"title": ["Northern Lights Fall"], "author": ["Owen Hart"]}}]}
+{"id": "stress_plain_14", "ground_truth": [{"send_email": {"to": ["rosa.diaz@example.com"], "subject": ["Quarterly report"]}}]}
+{"id": "stress_plain_15", "ground_truth": [{"book_table": {"restaurant": ["Little Tokyo"], "party_size": [6], "time": ["20:00"]}}]}
+{"id": "stress_plain_16", "ground_truth": [{"get_weather_forecast": {"city": ["Boston"], "days": [9]}}]}
+{"id": "stress_plain_17", "ground_truth": [{"add_task": {"title": ["Pay rent"], "due_date": ["2026-11-26"]}}]}
+{"id": "stress_plain_18", "ground_truth": [{"find_book": {"title": ["Glass Rivers"], "author": ["Tom Ashby"]}}]}
+{"id": "stress_plain_19", "ground_truth": [{"send_email": {"to": ["grace.lee@example.com"], "subject": ["Weekly update"]}}]}
+{"id": "stress_plain_20", "ground_truth": [{"book_table": {"restaurant": ["Blue Fig"], "party_size": [7], "time": ["20:30"]}}]}
+{"id": "stress_plain_21", "ground_truth": [{"get_weather_forecast": {"city": ["Kyoto"], "days": [7]}}]}
+{"id": "stress_plain_22", "ground_truth": [{"add_task": {"title": ["Water the plants"], "due_date": ["2026-12-24"]}}]}
+{"id": "stress_plain_23", "ground_truth": [{"find_book": {"title": ["Paper Moons"], "author": ["Nina Ford"]}}]}
+{"id": "stress_plain_24", "ground_truth": [{"send_email": {"to": ["quinn.taylor@example.com"], "subject": ["Budget review"]}}]}

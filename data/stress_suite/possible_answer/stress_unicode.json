@@ -1,0 +1,25 @@
+{"id": "stress_unicode_0", "ground_truth": [{"add_contact": {"name": ["Łukasz Wójcik"], "city": ["Tromsø"]}}]}
+{"id": "stress_unicode_1", "ground_truth": [{"create_event": {"title": ["Ålesund Jazz Week"], "location": ["Besançon"]}}]}
+{"id": "stress_unicode_2", "ground_truth": [{"add_contact": {"name": ["Ana Conceição"], "city": ["Zürich"]}}]}
+{"id": "stress_unicode_3", "ground_truth": [{"create_event": {"title": ["Über Tech Day"], "location": ["Málaga"]}}]}
+{"id": "stress_unicode_4", "ground_truth": [{"add_contact": {"name": ["Agnès Dupré"], "city": ["São Paulo"]}}]}
+{"id": "stress_unicode_5", "ground_truth": [{"create_event": {"title": ["Café Crème Night"], "location": ["Göteborg"]}}]}
+{"id": "stress_unicode_6", "ground_truth": [{"add_contact": {"name": ["Çağrı Yılmaz"], "city": ["Kraków"]}}]}
+{"id": "stress_unicode_7", "ground_truth": [{"create_event": {"title": ["Noël Market"], "location": ["Reykjavík"]}}]}
+{"id": "stress_unicode_8", "ground_truth": [{"add_contact": {"name": ["佐藤花子"], "city": ["東京"]}}]}
+{"id": "stress_unicode_9", "ground_truth": [{"create_event": {"title": ["Θερινό σινεμά"], "location": ["Αθήνα"]}}]}
+{"id": "stress_unicode_10", "ground_truth": [{"add_contact": {"name": ["সাকিব হাসান"], "city": ["ঢাকা"]}}]}
+{"id": "stress_unicode_11", "ground_truth": [{"create_event": {"title": ["दिवाली मेला"], "location": ["मुंबई"]}}]}
+{"id": "stress_unicode_12", "ground_truth": [{"add_contact": {"name": ["Иван Петров"], "city": ["Москва"]}}]}
+{"id": "stress_unicode_13", "ground_truth": [{"create_event": {"title": ["春节晚会"], "location": ["北京"]}}]}
+{"id": "stress_unicode_14", "ground_truth": [{"add_contact": {"name": ["김민준"], "city": ["서울"]}}]}
+{"id": "stress_unicode_15", "ground_truth": [{"create_event": {"title": ["ليلة الشعر"], "location": ["القاهرة"]}}]}
+{"id": "stress_unicode_16", "ground_truth": [{"add_contact": {"name": ["דוד כהן"], "city": ["תל אביב"]}}]}
+{"id": "stress_unicode_17", "ground_truth": [{"send_message": {"recipient": ["Sam Okafor"], "text": ["See you at 8 ☕"]}}]}
+{"id": "stress_unicode_18", "ground_truth": [{"send_message": {"recipient": ["Grace Lee"], "text": ["Meeting moved ➡️ Friday"]}}]}
+{"id": "stress_unicode_19", "ground_truth": [{"send_message": {"recipient": ["Chloe Martin"], "text": ["Привет 👋"]}}]}
+{"id": "stress_unicode_20", "ground_truth": [{"send_message": {"recipient": ["Tara Singh"], "text": ["Good luck 🍀 today"]}}]}
+{"id": "stress_unicode_21", "ground_truth": [{"send_message": {"recipient": ["Quinn Taylor"], "text": ["Lunch at 1 🍕?"]}}]}
+{"id": "stress_unicode_22", "ground_truth": [{"send_message": {"recipient": ["Farid Khan"], "text": ["All done ✅"]}}]}
+{"id": "stress_unicode_23", "ground_truth": [{"send_message": {"recipient": ["Rosa Diaz"], "text": ["Ça va? 😊"]}}]}
+{"id": "stress_unicode_24", "ground_truth": [{"send_message": {"recipient": ["Noah Fischer"], "text": ["Great job 👍 thanks!"]}}]}

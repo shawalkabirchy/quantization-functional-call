@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 5 of 9: quantization sweep, failure classifier, significance tests, constrained runs and the free vs. constrained comparison done; schema-stress suite next · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 5 of 9: quantization sweep, failure classifier, significance tests, constrained runs and the free vs. constrained comparison done; schema-stress suite built, its runs next · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -66,7 +66,7 @@ results for the free runs: [`results/taxonomy_free.md`](results/taxonomy_free.md
 ```
 configs/            one config per model x precision
 src/                evaluation, scoring and taxonomy code
-data/stress_suite/  schema-stress test cases
+data/stress_suite/  schema-stress suite: 175 questions in 7 groups (made by src/stress_suite.py)
 results/            summary tables and figures
 notebooks/          Kaggle notebooks and analysis
 notes/              related work, design decisions
@@ -90,8 +90,9 @@ python src/gap.py                                                       # free v
 python src/figures.py gap                                               # both changes from FP16 in one figure
 ```
 
-`--mode constrained` forces every answer to match the functions' JSON schema. Every run also saves
-its model revision, software versions, GPU, memory and speed in `results/meta/`.
+`--mode constrained` forces every answer to match the functions' JSON schema. `--categories stress` runs
+the schema-stress suite instead of BFCL's questions (`python src/stress_suite.py --check` checks the suite).
+Every run also saves its model revision, software versions, GPU, memory and speed in `results/meta/`.
 
 ## Progress
 
