@@ -57,3 +57,7 @@ checks that:
   functions; these functions do not have it.
 - **Run it:** `python src/run_eval.py --config <config> --mode free --categories stress` (run id
   `<config>_<mode>_stress`), then `python src/score.py` on the raw file.
+- **Known weakness (found in Update 12):** the number group's functions also take a product or member ID, and some
+  models change it (`513` for `SKU-513`), which lowers the group without any wrong number. The suite is kept as it
+  was run (v1).
+- **Results (Update 12):** [`results/stress.md`](../../results/stress.md).

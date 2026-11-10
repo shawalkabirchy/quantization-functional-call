@@ -1,6 +1,7 @@
 # Related Work
 
-Last literature check: 5 Oct 2026 (arXiv, Google Scholar, GitHub).
+Last literature check: 5 Oct 2026 (arXiv, Google Scholar, GitHub); checked again on 10 Nov 2026 (web search of
+arXiv), which added papers 17 and 18.
 
 ## Directly related
 
@@ -13,6 +14,8 @@ Last literature check: 5 Oct 2026 (arXiv, Google Scholar, GitHub).
 | 3 | Erdogan et al., *TinyAgent*, EMNLP 2024 Demo, [arXiv:2409.00608](https://arxiv.org/abs/2409.00608) | 2024 | Fine-tuned 1.1B/7B function-calling agents; 4-bit llama.cpp builds keep their success rate (80.06 → 80.35%, 84.95 → 85.14%) | Uses quantization-aware fine-tuning on one custom task; says nothing about off-the-shelf post-training quantization |
 | 4 | Jang et al., *Flat Score, Amplified Failures*, [arXiv:2607.27275](https://arxiv.org/abs/2607.27275) | 2026 | τ²-bench with 9-35B models (Gemma-4, Qwen3.5/3.6, dense and MoE) at BF16, FP8 and AWQ INT4 on vLLM: task score stays flat, but tool-name hallucination grows up to 2.5× and the benchmark's error budget hides it; counts failures per channel (hallucinated tool, wrong entity/argument, malformed arguments), and malformed arguments stay near zero at every precision | Large models in multi-turn episodes only; suggests constrained decoding but tests a re-prompting repair loop instead; no single-call scoring like BFCL's |
 | 5 | Wu et al., *Which Decisions Low-Bit Quantization Breaks, and How to Predict Them*, [arXiv:2608.06564](https://arxiv.org/abs/2608.06564) | 2026 | 16 models (0.6-32B, including Qwen3) at 4/3/2 bits (RTN, activation-aware scaling, GPTQ, GGUF): decision margins shrink predictably; *whether* to call a tool flips before *which* tool, and argument-filling decisions barely flip; at 3-bit RTN, three of five models lose more completed calls than correct tool choices on 400 BFCL tasks | Studies decisions, mostly at 3 and 2 bits; no JSON-validity analysis, no error taxonomy, no constrained decoding |
+| 17 | Hu, *Quantization Effects on Tool-Failure Recovery Vary Across Prompts and Evaluation Designs*, NeurIPS 2026 SLM-Agents workshop, [arXiv:2610.07781](https://arxiv.org/abs/2610.07781) | 2026 | 8-bit vs. 4-bit Llama-3.1-8B-Instruct and Qwen2.5-7B-Instruct on 20 deterministic tool-use tasks with 5 prompts: whether 8-bit or 4-bit recovers better from tool failures changes with the prompt and with the scoring rule (for one prompt, from 4-bit +17.5 to 8-bit +28.3 points); recommends matched-task comparison and a stated scoring policy | Recovery from tool failures only, two 7-8B models; no error taxonomy, no constrained decoding |
+| 18 | Liu and Yan, *AgentQ: Quantization-Conditioned Backdoor Attacks on LLM Agents*, [arXiv:2609.14060](https://arxiv.org/abs/2609.14060) | 2026 | An attack: a full-precision checkpoint that behaves normally but makes harmful function calls once quantized (NF4, FP4, INT8), up to 100% attack success | Security, not accuracy; shows that quantization can change function calls, on purpose |
 
 ### Quantization beyond perplexity (analogues)
 
@@ -111,3 +114,5 @@ missing:
       "quantization structured output JSON", "low-bit LLM agents" (5 Oct 2026)
 - [x] Reach 12+ directly related papers (16, plus QuantCliff)
 - [x] Update the existing-work and novelty claims in `docs/proposal.tex` to match (5 Oct 2026)
+- [x] Second search before the paper's Related Work section (10 Nov 2026): papers 17 and 18 added
+- [ ] Search again before submission

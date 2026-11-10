@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 5 of 9: quantization sweep, failure classifier, significance tests, constrained runs and the free vs. constrained comparison done; schema-stress suite built, its runs next · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 6 of 9: quantization sweep, failure classifier, significance tests, constrained runs, the free vs. constrained comparison and the schema-stress results done; Related Work drafted · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -33,7 +33,7 @@ grammar-constrained decoding, removes the failures that matter.
 
 | | Core | Stretch (if time allows) |
 |---|---|---|
-| **Benchmarks** | BFCL v4 AST categories (simple, multiple, parallel, parallel-multiple, irrelevance); schema-stress suite (~150 cases) | API-Bank, ToolACE |
+| **Benchmarks** | BFCL v4 AST categories (simple, multiple, parallel, parallel-multiple, irrelevance); schema-stress suite (175 questions) | API-Bank, ToolACE |
 | **Models** | Qwen3-1.7B/4B/8B (thinking mode off), Llama-3.2-1B/3B-Instruct | Qwen3-0.6B, Phi-4-mini, xLAM-2-1b |
 | **Precisions** | FP16 (baseline), INT8, NF4, GPTQ-4bit, AWQ-4bit | KV-cache quantization |
 | **Decoding** | Free generation vs. JSON-schema-constrained decoding | |
@@ -59,7 +59,8 @@ baseline.
 Rule: output that fails JSON parsing or schema validation is **syntactic**. Output that passes the
 schema but fails the BFCL checker is **semantic**. Classifier: [`src/taxonomy.py`](src/taxonomy.py);
 results for the free runs: [`results/taxonomy_free.md`](results/taxonomy_free.md); free vs. constrained:
-[`results/constrained_vs_free.md`](results/constrained_vs_free.md).
+[`results/constrained_vs_free.md`](results/constrained_vs_free.md); schema-stress suite:
+[`results/stress.md`](results/stress.md).
 
 ## Repository layout
 
@@ -88,6 +89,7 @@ python src/significance.py --mode free                                  # tests 
 python src/figures.py penalty --mode free                               # change from FP16, by model size
 python src/gap.py                                                       # free vs. constrained -> results/gap.csv
 python src/figures.py gap                                               # both changes from FP16 in one figure
+python src/stress_analysis.py                                           # stress suite -> results/stress_*.csv
 ```
 
 `--mode constrained` forces every answer to match the functions' JSON schema. `--categories stress` runs

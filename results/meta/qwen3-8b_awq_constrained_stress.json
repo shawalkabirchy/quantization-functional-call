@@ -1,0 +1,140 @@
+{
+  "run_id": "qwen3-8b_awq_constrained_stress",
+  "config_file": "configs/qwen3-8b_awq.yaml",
+  "config": {
+    "model": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "precision": "awq",
+    "dtype": "half",
+    "quantization": "awq",
+    "quantize": {
+      "method": "awq",
+      "bits": 4,
+      "group_size": 128,
+      "zero_point": true,
+      "batch_size": 16,
+      "fp16_copy": true,
+      "x_mean_floor": 0.001,
+      "max_scale": 100,
+      "chunk_mib": 128
+    },
+    "tensor_parallel_size": 1,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": -1,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0,
+      "seed": 42,
+      "max_tokens": 4096
+    }
+  },
+  "model": "Qwen/Qwen3-8B",
+  "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "precision": "awq",
+  "quantized_checkpoint": {
+    "config_file": "configs/qwen3-8b_awq.yaml",
+    "model": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "method": "awq",
+    "settings": {
+      "method": "awq",
+      "bits": 4,
+      "group_size": 128,
+      "zero_point": true,
+      "batch_size": 16,
+      "fp16_copy": true,
+      "x_mean_floor": 0.001,
+      "max_scale": 100,
+      "chunk_mib": 128
+    },
+    "calibration": {
+      "dataset": "allenai/c4",
+      "revision": "1588ec454efa1a09f29cd18ddd04fe05fc8653a2",
+      "file": "en/c4-train.00001-of-01024.json.gz",
+      "samples": 256,
+      "min_chars": 3000,
+      "tokens": 512
+    },
+    "started_utc": "2026-11-02T18:21:28+00:00",
+    "seconds": 5707.9,
+    "size_gib": 5.695,
+    "versions": {
+      "python": "3.11.17",
+      "vllm": null,
+      "torch": "2.9.1",
+      "transformers": "4.57.6",
+      "bfcl-eval": null,
+      "xgrammar": null,
+      "bitsandbytes": null,
+      "accelerate": "1.15.0",
+      "gptqmodel": "5.7.0"
+    }
+  },
+  "mode": "constrained",
+  "guided_decoding_backend": "xgrammar:disable-any-whitespace,no-fallback",
+  "prompt_format": "json-array-v1",
+  "categories": [
+    "stress_plain",
+    "stress_nested",
+    "stress_enum",
+    "stress_number",
+    "stress_optional",
+    "stress_unicode",
+    "stress_menu"
+  ],
+  "limit_per_category": null,
+  "n_questions": 175,
+  "sampling_params": "SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=-1, min_p=0.0, seed=42, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=4096, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None)",
+  "started_utc": "2026-11-07T19:36:39+00:00",
+  "finished_utc": "2026-11-07T19:42:21+00:00",
+  "model_load_seconds": 70.2,
+  "generation_seconds": 264.1,
+  "prompt_tokens": 145020,
+  "output_tokens": 6117,
+  "output_tokens_per_second": 23.2,
+  "finish_reasons": {
+    "stop": 175
+  },
+  "memory": {
+    "model_weights_gib": 5.7071,
+    "activation_peak_gib": 1.45,
+    "kv_cache_gib": 5.9,
+    "gpus_after_run": [
+      {
+        "index": 0,
+        "used_mib": 14667,
+        "total_mib": 15360
+      },
+      {
+        "index": 1,
+        "used_mib": 3,
+        "total_mib": 15360
+      }
+    ]
+  },
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "versions": {
+    "python": "3.11.18",
+    "vllm": "0.8.5",
+    "torch": "2.6.0",
+    "transformers": "4.51.3",
+    "bfcl-eval": "2026.3.23",
+    "xgrammar": "0.1.18",
+    "bitsandbytes": "0.45.5",
+    "accelerate": "1.6.0",
+    "gptqmodel": null
+  },
+  "code": {
+    "commit": "bae21f348ad64b4b16d8009ce4d65d1abce9534a",
+    "uncommitted_changes": false
+  }
+}

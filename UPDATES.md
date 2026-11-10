@@ -5,6 +5,43 @@ meeting.
 
 ---
 
+## Update 12: Schema-stress results; Related Work
+Planned: Wed 11 Nov · Pushed: Tue 10 Nov
+
+**Done:**
+- The schema-stress suite ran on all 25 model and precision combinations, in free and constrained decoding: 50 runs
+  on Kaggle in two parts ([A](notebooks/07_stress_run_A.ipynb), [B](notebooks/07_stress_run_B.ipynb)), all
+  finished. Every answer was scored again on a PC, with the same result
+- Results by group and level, failure classes per group, and paired tests against FP16
+  ([`src/stress_analysis.py`](src/stress_analysis.py), [report](results/stress.md),
+  [accuracy](results/stress_accuracy.csv), [failure classes](results/stress_failures.csv),
+  [tests](results/stress_significance.csv))
+- Paper ([`paper/main.tex`](paper/main.tex)): Results for RQ4 with a table; Related Work written as text; RQ4 in
+  the abstract and the Introduction. The literature was checked again, and two new preprints were added to
+  [`notes/related_work.md`](notes/related_work.md)
+
+**Result:** no schema feature breaks across the board as precision drops. The clearest case is objects nested three
+levels deep in Qwen3-4B:
+
+| Qwen3-4B, nested 3 levels deep (6 questions) | FP16 | INT8 | NF4 | GPTQ | AWQ |
+|---|---:|---:|---:|---:|---:|
+| Free decoding | 6 | 5 | 0 | 0 | 0 |
+| Constrained decoding | 6 | 6 | 6 | 6 | 6 |
+
+Each of these 19 failures is right once only its closing braces are fixed, so the constraint removes it, as in
+Update 10. Qwen3-4B and Qwen3-8B get almost every question right at every precision. The weak spots of the smaller
+models are already there at FP16: Qwen3-1.7B adds an extra brace after a number, and Llama-3.2-3B writes non-ASCII
+letters as wrong `\u` escapes.
+
+**Problem:** the groups are small (25 questions), so only large changes pass the significance test: 7 of 280 do,
+and the Qwen3-4B nesting drop (25 to 19 in the group) does not. Llama-3.2-1B fails the plain control itself (23 of
+25 empty answers at FP16), so its groups cannot be read against the control. In the number group, every wrong value
+is in a product ID, not in the number; the suite stays as it was run, and a version 2 could leave the ID out.
+
+**Next (Update 13, planned Mon 16 Nov):** one stretch item; latency benchmark.
+
+---
+
 ## Update 11: Schema-stress suite v1; Introduction
 Planned: Mon 9 Nov · Pushed: Fri 6 Nov
 

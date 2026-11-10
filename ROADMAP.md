@@ -27,7 +27,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 6 (8-14 Nov): Schema-stress suite
 - [x] **Update 11 (Mon 9 Nov):** stress suite v1 (~150 cases, 6 failure classes); Introduction drafted (175 questions: 6 groups of 25 and a control group of 25)
-- [ ] **Update 12 (Wed 11 Nov):** stress-suite results by failure class; Related Work section
+- [x] **Update 12 (Wed 11 Nov):** stress-suite results by failure class; Related Work section
 
 ## Week 7 (15-21 Nov): Stretch item and accuracy per gigabyte
 - [ ] **Update 13 (Mon 16 Nov):** one stretch item; latency benchmark

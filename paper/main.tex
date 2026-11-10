@@ -36,11 +36,13 @@ Supervisor: Dr.\ Mohammad Shifat-E-Rabbi}}
   \item Headline: constrained decoding removes a quantization loss only when it is a format error over the
         right content (68--111\% of three significant losses removed); it leaves content losses unchanged, and
         it makes two losses larger, where the model answers with no call instead.
+  \item Schema stress (RQ4): no schema feature breaks across the board; the clearest case, objects nested three
+        levels deep in Qwen3-4B at 4 bits, fails in format only, and the other weak spots are already there at FP16.
 \end{itemize}
 \end{abstract}
 
 \section{Introduction}
-% First draft (Update 11). Citations are added as BibTeX in Update 16; the stress-suite results (RQ4) in Update 12.
+% First draft (Update 11); RQ4 results added in Update 12. Citations are added as BibTeX in Update 16.
 Language models that act as agents answer with function calls: a request to book a room, move money or switch a
 device becomes a call with a function name and typed arguments, which a program then executes. On laptops, phones
 and on-premise servers these agents usually run small models, and usually in a quantized form, most often with
@@ -77,7 +79,9 @@ The two larger Qwen3 models stay within 2.35 points of FP16 at every precision, 
 move by up to 33 points, mostly through format; 11 of the 20 changes are statistically significant. Constrained
 decoding removes a quantization loss only when the loss is a format error over the right content: it removes
 68--111\% of three significant losses, leaves the losses of the two larger models unchanged, and makes two losses
-larger, because the forced model answers with no call instead.
+larger, because the forced model answers with no call instead. On a schema-stress suite of 175 questions, no schema
+feature breaks across the board as precision drops: the clearest case, objects nested three levels deep in Qwen3-4B
+at 4 bits, fails in format only, and the other weak spots are already there at FP16.
 
 Our contributions are:
 \begin{itemize}
@@ -93,17 +97,44 @@ Our contributions are:
 We do not claim to be the first to evaluate quantized models on tool calling (Section~\ref{sec:related}).
 
 \section{Related Work}\label{sec:related}
-\textit{Drafted in Update 12 from \texttt{notes/related\_work.md}.}
-\begin{itemize}
-  \item Quantization and tool calling: ACBench (ICML 2025), Less is More (DATE 2025), TinyAgent
-        (EMNLP 2024 Demo), Jang et al.\ (2026), Wu et al.\ (2026); QuantCliff (GitHub, not a paper).
-  \item Quantization beyond perplexity: code generation (Afrin et al., 2026), on-device evaluation (2025).
-  \item Function-calling evaluation: BFCL (ICML 2025), ToolScan (error taxonomy at full precision).
-  \item Structured output and constrained decoding at full precision: Let Me Speak Freely?, JSONSchemaBench,
-        the constraint-tax papers (Ray; Li et al.), Repair, Not Improvement (Lee), Chavan (2026).
-  \item What is still missing: an error breakdown for small models on one stack; constrained decoding
-        combined with quantization, with paired tests; schema features under quantization.
-\end{itemize}
+% First draft (Update 12), from notes/related_work.md; literature checked again on 10 Nov 2026.
+\textbf{Quantization and tool calling.} ACBench evaluates compressed models from 2B to 32B parameters, GPTQ and AWQ
+among them, on agent tasks that include tool use, and finds that 4-bit weights cost only 1--3\% on tool use; it
+reports aggregate scores. Less is More shows Llama-3.1-8B falling from 63\% to 20--44\% on 230 BFCL questions in 4-
+to 8-bit builds, but its full-precision model and its quantized builds run on different serving stacks. TinyAgent
+keeps the success rate of fine-tuned 1.1B and 7B agents at 4 bits, after quantization-aware fine-tuning on one task.
+Recent preprints look closer. Jang et al.\ find that the task score of 9B to 35B models stays flat while tool-name
+hallucinations grow up to 2.5 times, and that malformed arguments stay near zero. Wu et al.\ find that at low bit
+widths the decision whether to call a tool flips before the choice of tool, while argument filling barely flips.
+Hu shows that the comparison of 8-bit and 4-bit models recovering from tool failures can change direction with the
+prompt and the scoring rule, which argues for matched questions and a stated scoring policy. The open-source
+QuantCliff project runs GGUF builds of three models with and without a JSON-schema grammar and finds that the grammar
+removes malformed output without raising task success. AgentQ shows, as an attack, that a model can be built to make
+harmful function calls only after it is quantized to NF4, FP4 or INT8.
+
+\textbf{Quantization beyond perplexity.} Studies of quantized code models find that quantization methods differ
+widely (Afrin et al.), and on-device evaluations report accuracy, latency and memory. Neither checks whether
+structured output stays valid.
+
+\textbf{Function-calling evaluation.} BFCL is the standard benchmark: it checks each call against possible answers
+and compares models, not the precisions of one model. ToolScan sorts the errors of tool-using models into a
+taxonomy, at full precision. Our failure classes follow the same idea, but they are tied to the schema that
+constrained decoding enforces, so the syntactic share is exactly what a schema can block.
+
+\textbf{Structured output and constrained decoding.} At full precision, format restrictions can lower reasoning
+accuracy (Let Me Speak Freely?), and JSONSchemaBench compares constrained-decoding engines on 10,000 real-world
+schemas. Several 2026 preprints find that a schema repairs format more than it improves content: hard schema
+decoding makes every output valid but lowers the accuracy of 0.5B to 1.7B models (Ray); constraining tool names in
+0.6B to 4B routers mostly repairs unreadable output (Lee); and constrained decoding removes every structural failure
+of 0.6B to 4B models but leaves a semantic gap (Chavan). Li et al.\ report that some models stop calling tools when
+a JSON-schema constraint and tool calling are switched on together. We use XGrammar, the backend of vLLM's guided
+decoding.
+
+\textbf{This work.} We build on these studies with a controlled sweep of small models: one prompt, scorer and serving
+stack for five precisions, every failure sorted into syntactic and semantic classes, paired tests for every change,
+and a test of constrained decoding against quantization on the full non-live BFCL set, which QuantCliff studied on
+20 scenarios. The schema-stress suite adds a view by schema feature; JSONSchemaBench catalogues such features, but
+uses them to compare decoding engines.
 
 \section{Experimental Setup}\label{sec:setup}
 % Written in Update 9. Every value below is in configs/, src/ or results/meta/.
@@ -180,6 +211,10 @@ difference.
   \item Schema-stress suite: made from templates with fixed seeds by \texttt{src/stress\_suite.py}; each question
         has one correct call, with every value stated in the question; the answer keys are checked to accept
         the correct call and reject 220 wrong ones; scored with BFCL's checker, like the main questions.
+  \item Stress-suite analysis: accuracy per group and level; the failure classes above, plus whether a wrong value
+        is in the stressed argument and whether an invalid answer is right once only its closing brackets are fixed;
+        McNemar's exact test per group against FP16 of the same model and mode, with Holm's correction over the 140
+        tests of each mode.
 \end{itemize}
 
 \section{Results}\label{sec:results}
@@ -253,13 +288,47 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
 \end{figure}
 
 \subsection{Schema-stress suite (RQ4)}
-\textit{Results in Update 12.}
 \begin{itemize}
-  \item 175 questions in seven groups of 25 (\texttt{data/stress\_suite/}): nested objects, enumerated codes,
-        integer vs.\ float, optional arguments, non-ASCII strings, 50-function menus, and a plain control.
-  \item Accuracy per group and precision, relative to the control; then per level inside each group (e.g.\ nesting
-        depth, number of codes); which feature breaks first as precision drops.
+  \item Table~\ref{tab:stress}. 175 questions in seven groups of 25 (nested objects, enumerated codes, integer and
+        float arguments, optional arguments, non-ASCII strings, 50-function menus, and a plain control), 50 runs.
+  \item No feature breaks across the board. Qwen3-4B and Qwen3-8B miss at most 2 questions in any constrained run.
+  \item The clearest case is three-level nesting in Qwen3-4B with free decoding: 6 of 6 right at FP16, 5 at INT8,
+        none at NF4, GPTQ and AWQ. All 19 failures are wrong closing braces over the right content (each is right
+        once only the brackets are fixed); with the constraint every precision gets 6 of 6. The drop is the same for
+        all three 4-bit methods but does not pass Holm's correction: a group of 25 must lose 13 to pass.
+  \item The other weak spots are there at FP16: Qwen3-1.7B adds a closing brace after a number (44 of its 125 number
+        answers in free decoding, FP16 the worst), Llama-3.2-3B miswrites non-ASCII letters as \texttt{\textbackslash u}
+        escapes (5--8 of 25 with the constraint), and Llama-3.2-1B answers 23 of the 25 control questions at FP16
+        with no call.
+  \item No well-formed answer has a wrong number: the 104 wrong values in the number group are all in an ID
+        argument. In the enum, optional and unicode groups every wrong value is in the stressed argument; with 30
+        codes, Qwen3-1.7B GPTQ picks a wrong code on 4 of 8 questions.
+  \item 7 of the 280 changes pass Holm's correction: three gains in free decoding (two in format, one in fewer empty
+        answers), and, under the constraint, Llama-3.2-1B's empty answers and its gains on the menu.
 \end{itemize}
+
+\begin{table*}[t]
+\centering
+\caption{Schema-stress suite: correct answers out of 25 per group at FP16, with the lowest and highest of the four
+quantized precisions in brackets}\label{tab:stress}
+\begin{tabular}{llrrrrrrr}
+\toprule
+Mode & Model & Plain & Nested & Enum & Number & Optional & Unicode & Menu \\
+\midrule
+Free & Qwen3-1.7B & 25 (25) & 24 (20--25) & 22 (21--23) & 9 (13--25) & 25 (23--25) & 24 (23--24) & 25 (22--25) \\
+ & Qwen3-4B & 25 (25) & 25 (19--24) & 25 (24--25) & 25 (25) & 25 (25) & 25 (24--25) & 25 (24--25) \\
+ & Qwen3-8B & 25 (25) & 25 (25) & 25 (24--25) & 25 (25) & 25 (25) & 25 (25) & 25 (25) \\
+ & Llama-3.2-1B & 2 (2--16) & 11 (0--18) & 5 (0--3) & 3 (0--11) & 14 (8--20) & 4 (1--7) & 3 (0--3) \\
+ & Llama-3.2-3B & 16 (16--25) & 12 (14--24) & 11 (8--23) & 9 (5--11) & 7 (9--23) & 5 (1--7) & 19 (18--25) \\
+\midrule
+Constrained & Qwen3-1.7B & 25 (25) & 25 (25) & 22 (21--23) & 25 (25) & 25 (25) & 24 (23--24) & 25 (23--25) \\
+ & Qwen3-4B & 25 (25) & 25 (25) & 25 (24--25) & 25 (25) & 25 (25) & 25 (24--25) & 25 (25) \\
+ & Qwen3-8B & 25 (25) & 25 (25) & 25 (24--25) & 25 (25) & 25 (25) & 25 (25) & 25 (25) \\
+ & Llama-3.2-1B & 2 (0--4) & 20 (0--23) & 8 (0--9) & 9 (0--7) & 12 (1--9) & 6 (0--7) & 6 (3--25) \\
+ & Llama-3.2-3B & 25 (21--25) & 25 (21--25) & 24 (20--25) & 13 (12--15) & 25 (25) & 8 (5--8) & 22 (10--24) \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 \subsection{Memory and speed}
 \begin{itemize}
@@ -281,6 +350,8 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
   \item One run per configuration (greedy decoding); single-turn BFCL questions only.
   \item One calibration set for GPTQ and AWQ; Qwen3-8B AWQ needed extra settings.
   \item The schema is very slightly stricter than BFCL's checker (14 of 34,750 correct answers).
+  \item The stress groups are small (25 questions, 6--9 per level); the number group also has an ID argument, and
+        the menu functions have no argument descriptions.
 \end{itemize}
 
 \section{Conclusion}
@@ -291,6 +362,7 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
 
 \section*{References}
 \textit{To be added as BibTeX (Update 16): BFCL, ToolScan, ACBench, Less is More, TinyAgent, Jang et al.,
-Wu et al., the constrained-decoding papers, vLLM, XGrammar, GPTQ, AWQ, LLM.int8(), QLoRA.}
+Wu et al., Hu, AgentQ, QuantCliff, Afrin et al., the on-device evaluation, the constrained-decoding papers
+(Let Me Speak Freely?, JSONSchemaBench, Ray, Li et al., Lee, Chavan), vLLM, XGrammar, GPTQ, AWQ, LLM.int8(), QLoRA.}
 
 \end{document}
