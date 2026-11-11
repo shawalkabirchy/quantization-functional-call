@@ -29,6 +29,9 @@ grammar-constrained decoding, removes the failures that matter.
 | **RQ3** | How much of the quantization penalty does grammar-constrained decoding remove, and which errors remain? |
 | **RQ4** | Which schema features (nesting, enums, integer vs. float, optional fields, unicode, large tool menus) break first? |
 
+Answers so far: [`research_questions/`](research_questions/README.md). Main findings and score changes:
+[`findings/`](findings/README.md).
+
 ## Planned setup
 
 | | Core | Stretch (if time allows) |
@@ -69,6 +72,8 @@ configs/            one config per model x precision
 src/                evaluation, scoring and taxonomy code
 data/stress_suite/  schema-stress suite: 175 questions in 7 groups (made by src/stress_suite.py)
 results/            summary tables and figures
+findings/           main findings and score changes, in one place
+research_questions/ the four research questions and their answers so far
 notebooks/          Kaggle notebooks and analysis
 notes/              related work, design decisions
 paper/              paper source (LaTeX)
