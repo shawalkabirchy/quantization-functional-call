@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 7 of 9: quantization sweep, failure classifier, significance tests, constrained runs, the free vs. constrained comparison, the schema-stress results, the 8-bit KV cache (stretch item), the latency benchmark and the accuracy vs. memory and latency figure done; Related Work and Method drafted · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 7 of 9 (experiments frozen): quantization sweep, failure classifier, significance tests, constrained runs, the free vs. constrained comparison, the schema-stress results, the 8-bit KV cache (stretch item), the latency benchmark and the accuracy vs. memory and latency figure done; full paper draft written (references still to add) · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 

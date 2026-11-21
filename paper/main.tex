@@ -1,6 +1,6 @@
-% Paper outline (Update 8): every section in bullet points. The text is written in later updates
-% (Setup in Update 9, Introduction in Update 11, Related Work in Update 12, Method in Update 14,
-% the rest in Update 15). Numbers come from results/; check them again before the final version.
+% Full draft (Update 15): Setup in Update 9, Introduction in Update 11, Related Work in Update 12,
+% Method in Update 14; Results, Discussion, Limitations, Conclusion and abstract in Update 15;
+% references in Update 16. Numbers come from results/; check them again before the final version.
 %
 % Build: from this folder, e.g. `tectonic main.tex` or `pdflatex main.tex`.
 % The figures are read from ../results/figures/.
@@ -10,7 +10,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{url}
-\graphicspath{{../results/figures/}}
+\graphicspath{{../results/figures/}{figures/}}   % figures/ is for Overleaf: upload the PNGs into a folder figures/
 
 \begin{document}
 
@@ -24,21 +24,18 @@ Supervisor: Dr.\ Mohammad Shifat-E-Rabbi}}
 \maketitle
 
 \begin{abstract}
-\textit{Outline. Written last (Update 15).}
-\begin{itemize}
-  \item Problem: small LLMs run quantized on local devices, and a wrong tool call is a wrong action.
-        Accuracy alone does not show how the calls fail.
-  \item What we do: 5 models (1--8B) $\times$ 5 precisions $\times$ 2 decoding modes on the 1,390
-        non-live BFCL questions, one serving stack; every failure sorted into syntactic and semantic classes;
-        paired significance tests.
-  \item Findings so far: Qwen3-4B and Qwen3-8B stay within 2.35 points of FP16 at every precision; the
-        three smaller models move by up to 33 points, mostly through format; 11 of 20 changes are significant.
-  \item Headline: constrained decoding removes a quantization loss only when it is a format error over the
-        right content (68--111\% of three significant losses removed); it leaves content losses unchanged, and
-        it makes two losses larger, where the model answers with no call instead.
-  \item Schema stress (RQ4): no schema feature breaks across the board; the clearest case, objects nested three
-        levels deep in Qwen3-4B at 4 bits, fails in format only, and the other weak spots are already there at FP16.
-\end{itemize}
+Small language models that act as agents usually run quantized, and a wrong tool call is a wrong action, often a
+silent one. We measure how quantization changes the function calls of five instruction-tuned models (Qwen3-1.7B,
+4B and 8B; Llama-3.2-1B and 3B) at five precisions (FP16, INT8, NF4, GPTQ, AWQ) and in two decoding modes (free
+and JSON-schema-constrained) on the 1,390 non-live questions of the Berkeley Function Calling Leaderboard, with one
+serving stack and pinned revisions. Every failure is sorted into syntactic and semantic classes, and every change
+is tested against FP16 with paired tests. Qwen3-4B and Qwen3-8B stay within 2.35 points of FP16 at every
+precision, while the three smaller models move by up to 33 points in both directions, mostly through their format
+habits. Constrained decoding removes a quantization loss only when it is a format error over the right content
+(68--111\% of three significant losses); it leaves content losses unchanged and makes two losses larger, because
+the forced model answers with no call. On a 175-question schema-stress suite, no schema feature breaks across the
+board. An 8-bit KV cache barely changes accuracy. The best trade-off is Qwen3-4B with 4-bit weights: with
+2.5\,GiB, a third of its FP16 memory, it comes within two points of the most accurate run of any model.
 \end{abstract}
 
 \section{Introduction}
@@ -92,6 +89,7 @@ Our contributions are:
   \item paired significance tests for every change, so that real changes can be told from chance;
   \item a comparison of free and constrained decoding that shows which quantization losses a schema can remove;
   \item a schema-stress suite of 175 questions in seven groups, one per schema feature plus a control;
+  \item an 8-bit KV-cache setting and a latency and memory benchmark at batch size 1 for every configuration;
   \item code, configurations, raw answers and scores, released for reproduction.
 \end{itemize}
 We do not claim to be the first to evaluate quantized models on tool calling (Section~\ref{sec:related}).
@@ -271,28 +269,42 @@ A configuration lies on the Pareto frontier when no other configuration is both 
 and more accurate.
 
 \section{Results}\label{sec:results}
+% Written in Update 15. Numbers from results/main_table*.md, significance_*.csv, taxonomy_*.csv, gap.csv,
+% stress*.csv, kv_cache*.csv and latency.csv.
+
 \subsection{Accuracy by precision and model size (RQ1)}
-\begin{itemize}
-  \item Table~\ref{tab:main} and Fig.~\ref{fig:penalty}. Qwen3-4B and Qwen3-8B stay within 2.35 points of
-        FP16; only two of their eight changes are significant.
-  \item The smaller models move a lot: Qwen3-1.7B GPTQ $-33.31$; Llama-3.2-1B $-18.59$ to $-25.00$ with NF4,
-        GPTQ and AWQ; Llama-3.2-3B $+8.35$ to $+28.14$ with the same three.
-  \item Within each family the smallest model is hurt most. Across families, size alone does not predict the
-        change: Llama-3.2-3B gains, while Qwen3-4B, of similar size, barely moves.
-\end{itemize}
+Table~\ref{tab:main} gives Overall accuracy for every run, and Fig.~\ref{fig:penalty} the change from FP16 with
+free decoding. The two larger Qwen3 models barely move: Qwen3-4B and Qwen3-8B stay within 2.35 points of FP16 at
+every precision, and only two of their eight changes are significant (Qwen3-4B NF4, $-2.35$; Qwen3-8B GPTQ,
+$-2.31$). The three smaller models move a lot, and in both directions. Qwen3-1.7B loses 33.31 points with GPTQ,
+Llama-3.2-1B loses 18.59 to 25.00 points with NF4, GPTQ and AWQ, and Llama-3.2-3B gains 8.35 to 28.14 points with
+the same three methods. In all, 11 of the 20 changes are significant. Within each family the smallest model is
+hurt most, but across families size alone does not predict the change: Llama-3.2-3B gains, while Qwen3-4B, of
+similar size, barely moves. INT8 is the gentlest precision (significant only for Qwen3-1.7B, $-3.14$), and GPTQ
+gives the largest drop for three of the five models with free decoding and for four of the five with constrained
+decoding. All GPTQ and AWQ checkpoints share one recipe and one calibration set, so this comparison of methods holds
+for that recipe.
 
 \begin{table}[t]
 \centering
-\caption{Overall accuracy (\%), free decoding}\label{tab:main}
+\caption{Overall accuracy (\%) on the 1,390 non-live BFCL questions}\label{tab:main}
 \begin{tabular}{lrrrrr}
 \toprule
 Model & FP16 & INT8 & NF4 & GPTQ & AWQ \\
 \midrule
+\multicolumn{6}{l}{\textit{Free decoding}} \\
 Qwen3-1.7B   & 72.56 & 69.42 & 69.06 & 39.25 & 75.94 \\
 Qwen3-4B     & 88.04 & 88.29 & 85.69 & 86.60 & 86.98 \\
 Qwen3-8B     & 88.29 & 87.27 & 88.00 & 85.98 & 88.42 \\
 Llama-3.2-1B & 36.40 & 34.94 & 16.02 & 11.40 & 17.81 \\
 Llama-3.2-3B & 31.38 & 34.02 & 52.75 & 59.52 & 39.73 \\
+\midrule
+\multicolumn{6}{l}{\textit{Constrained decoding}} \\
+Qwen3-1.7B   & 82.46 & 82.79 & 78.50 & 71.65 & 80.81 \\
+Qwen3-4B     & 88.25 & 89.04 & 86.12 & 86.85 & 87.48 \\
+Qwen3-8B     & 88.58 & 88.21 & 88.27 & 86.88 & 88.83 \\
+Llama-3.2-1B & 48.19 & 45.50 & 17.83 &  2.90 & 47.75 \\
+Llama-3.2-3B & 71.04 & 69.42 & 65.96 & 64.71 & 68.98 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -300,19 +312,21 @@ Llama-3.2-3B & 31.38 & 34.02 & 52.75 & 59.52 & 39.73 \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{penalty_by_size_free.png}
-\caption{Change in Overall accuracy from FP16, models smallest first, with bootstrap 95\% intervals.
+\caption{Change in Overall accuracy from FP16, free decoding, models smallest first, with bootstrap 95\% intervals.
 Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{fig:penalty}
 \end{figure}
 
 \subsection{Failure classes (RQ2)}
-\begin{itemize}
-  \item Fig.~\ref{fig:taxonomy}. 6,844 of the 11,625 failures in the 25 free runs (58.9\%) are syntactic.
-  \item Qwen3-4B and Qwen3-8B fail mostly on argument values (M2); in the smaller models, quantization mostly
-        moves the syntactic counts (Qwen3-1.7B GPTQ: $+273$ syntactic, $+63$ semantic).
-  \item Examples: an extra \texttt{\}} (Qwen3-1.7B GPTQ), a copied function definition (Llama-3.2-1B), a
-        missing closing \texttt{]} (Llama-3.2-3B FP16).
-  \item Caveat: a format error hides any content error in the same answer.
-\end{itemize}
+Over the 25 free runs, 6,844 of the 11,625 failures (58.9\%) are syntactic (Fig.~\ref{fig:taxonomy}). The split
+depends on the model. Qwen3-4B and Qwen3-8B fail mostly on argument values: only 6.5--10.6\% of their failures are
+syntactic, and quantization changes their failure counts by at most 29 answers. In the three smaller models,
+quantization mostly moves the syntactic counts: Qwen3-1.7B GPTQ has 273 more syntactic failures than FP16 and 63
+more semantic ones, Llama-3.2-1B GPTQ has 481 more syntactic ones, and Llama-3.2-3B GPTQ has 441 fewer. Each small
+model has its own format habit. Qwen3-1.7B writes one closing brace too many (221 of the 395 unparsed AST answers
+of its GPTQ run), Llama-3.2-1B copies the function definition into its answer, and Llama-3.2-3B at FP16 leaves out
+the closing bracket of the array (503 of its 519 invalid-JSON answers would parse with it). An answer with a format
+error is never checked for content, so a format error can hide a content error; the constrained runs show what lies
+behind them.
 
 \begin{figure}[t]
 \centering
@@ -321,17 +335,20 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
 \end{figure}
 
 \subsection{Constrained decoding (RQ3)}
-\begin{itemize}
-  \item Fig.~\ref{fig:gap}. The constraint raises FP16 for every model (Llama-3.2-3B by 39.66 points) and
-        24 of the 25 runs; syntactic failures fall from 6,844 to 53 (none breaks the schema).
-  \item Of the 7 significant free losses: removed for Qwen3-1.7B INT8 (111\%) and GPTQ (68\%) and
-        Llama-3.2-1B AWQ (98\%); unchanged for Qwen3-4B NF4 and Qwen3-8B GPTQ (content losses); larger for
-        Llama-3.2-1B NF4 ($-20.38 \to -30.36$) and GPTQ ($-25.00 \to -45.29$), which answer with an empty
-        array instead.
-  \item Free-mode gains were format effects: Llama-3.2-3B's $+8.35$ to $+28.14$ become changes below FP16.
-  \item Substitution: semantic failures rise from 4,781 to 8,902; what is left is wrong values (Qwen3), no call
-        (Llama-3.2-1B), and a mix (Llama-3.2-3B). Under the constraint, 8 of the 20 changes are significant.
-\end{itemize}
+The constraint raises FP16 for every model, Llama-3.2-3B by 39.66 points, and raises 24 of the 25 runs
+(Table~\ref{tab:main}). Syntactic failures fall from 6,844 to 53; none of these 53 breaks the schema, they were cut
+off at the token limit or stopped early. Fig.~\ref{fig:gap} compares the change from FP16 in the two modes. Of the
+seven significant free losses, the constraint removes three almost entirely: Qwen3-1.7B INT8 (111\% removed),
+Qwen3-1.7B GPTQ (68\%, from $-33.31$ to $-10.81$) and Llama-3.2-1B AWQ (98\%, from $-18.59$ to $-0.44$). These are
+format errors over the right content: Qwen3-1.7B GPTQ failed on format on 414 AST questions in free decoding, and
+279 of them are right under the constraint. Two losses stay: those of Qwen3-4B NF4 (9\% removed) and Qwen3-8B GPTQ
+(26\%), neither share different from zero. These losses were already about argument values, which a schema cannot
+fix. Two losses grow: Llama-3.2-1B NF4 (from $-20.38$ to $-30.36$) and GPTQ (from $-25.00$ to $-45.29$). Forced to
+write valid JSON, these models answer with an empty list; Llama-3.2-1B GPTQ does so on 1,112 of the 1,150 AST
+questions and is the only run that scores lower with the constraint (11.40 to 2.90). The free-mode gains of
+Llama-3.2-3B turn into losses of 2.06 to 6.33 points, because the constraint also repairs the format of its FP16
+run. Semantic failures rise from 4,781 to 8,902: many answers that broke the format also had wrong content. Under
+the constraint, 8 of the 20 changes from FP16 are significant.
 
 \begin{figure}[t]
 \centering
@@ -341,24 +358,20 @@ Striped bars are not significant (McNemar, Holm-adjusted $p \geq 0.05$).}\label{
 \end{figure}
 
 \subsection{Schema-stress suite (RQ4)}
-\begin{itemize}
-  \item Table~\ref{tab:stress}. 175 questions in seven groups of 25 (nested objects, enumerated codes, integer and
-        float arguments, optional arguments, non-ASCII strings, 50-function menus, and a plain control), 50 runs.
-  \item No feature breaks across the board. Qwen3-4B and Qwen3-8B miss at most 2 questions in any constrained run.
-  \item The clearest case is three-level nesting in Qwen3-4B with free decoding: 6 of 6 right at FP16, 5 at INT8,
-        none at NF4, GPTQ and AWQ. All 19 failures are wrong closing braces over the right content (each is right
-        once only the brackets are fixed); with the constraint every precision gets 6 of 6. The drop is the same for
-        all three 4-bit methods but does not pass Holm's correction: a group of 25 must lose 13 to pass.
-  \item The other weak spots are there at FP16: Qwen3-1.7B adds a closing brace after a number (44 of its 125 number
-        answers in free decoding, FP16 the worst), Llama-3.2-3B miswrites non-ASCII letters as \texttt{\textbackslash u}
-        escapes (5--8 of 25 with the constraint), and Llama-3.2-1B answers 23 of the 25 control questions at FP16
-        with no call.
-  \item No well-formed answer has a wrong number: the 104 wrong values in the number group are all in an ID
-        argument. In the enum, optional and unicode groups every wrong value is in the stressed argument; with 30
-        codes, Qwen3-1.7B GPTQ picks a wrong code on 4 of 8 questions.
-  \item 7 of the 280 changes pass Holm's correction: three gains in free decoding (two in format, one in fewer empty
-        answers), and, under the constraint, Llama-3.2-1B's empty answers and its gains on the menu.
-\end{itemize}
+No schema feature breaks across the board as precision drops (Table~\ref{tab:stress}). Qwen3-4B and Qwen3-8B handle
+every feature at every precision; Qwen3-4B misses at most two questions in any constrained run. The clearest case
+is three-level nesting in Qwen3-4B with free decoding: 6 of 6 right at FP16, 5 at INT8 and none at NF4, GPTQ and
+AWQ. All 19 of these failures have the right values and wrong closing braces; each is right once only its brackets
+are fixed, and under the constraint every precision gets 6 of 6. The drop is the same for all three 4-bit methods,
+but in a group of 25 a loss must reach 13 questions to pass Holm's correction, and this one does not. The other weak
+spots are already there at FP16: Qwen3-1.7B adds a closing brace after a number (44 of its 125 number answers in
+free decoding, with FP16 the worst at 9 of 25), Llama-3.2-3B miswrites non-ASCII letters as
+\texttt{\textbackslash u} escapes (5 to 8 of 25 right with the constraint, at every precision), and Llama-3.2-1B
+answers 23 of the 25 control questions at FP16 with no call. No well-formed answer has a wrong number: the 104 wrong
+values in the number group are all in a product-ID argument. In the enum, optional and unicode groups every wrong
+value is in the stressed argument; with 30 codes, Qwen3-1.7B GPTQ picks a wrong code on 4 of 8 questions. Only 7
+of the 280 changes pass Holm's correction: three gains in free decoding, and, under the constraint, Llama-3.2-1B's
+empty answers and its gains on the menu.
 
 \begin{table*}[t]
 \centering
@@ -383,35 +396,96 @@ Constrained & Qwen3-1.7B & 25 (25) & 25 (25) & 22 (21--23) & 25 (25) & 25 (25) &
 \end{tabular}
 \end{table*}
 
+\subsection{8-bit KV cache}
+Storing the KV cache in 8 bits leaves four of the five models unchanged: they move by $-1.42$ to $+0.29$ points,
+and no change is significant (Table~\ref{tab:kv}). Qwen3-1.7B changes significantly (58 AST answers lost and 28
+gained, Holm-adjusted $p = 0.008$), although its Overall falls by only 0.73 points and the 95\% interval includes
+zero. Its new errors are its old format habit: answers with one closing brace too many rise from 75 to 102, and 42
+of the 51 answers that become invalid JSON are right once that brace is removed. No stress-suite group changes
+significantly. The same memory holds twice as many tokens of keys and values, while writing at batch size 1 is
+14--23\% slower on the T4, which has no FP8 hardware.
+
+\begin{table}[t]
+\centering
+\caption{Overall accuracy (\%) with an FP16 and an 8-bit KV cache, free decoding (same FP16 weights)}\label{tab:kv}
+\begin{tabular}{lrrr}
+\toprule
+Model & FP16 KV & 8-bit KV & Change \\
+\midrule
+Qwen3-1.7B   & 72.56 & 71.83 & $-0.73$\rlap{*} \\
+Qwen3-4B     & 88.04 & 87.29 & $-0.75$ \\
+Qwen3-8B     & 88.29 & 88.58 & $+0.29$ \\
+Llama-3.2-1B & 36.40 & 34.98 & $-1.42$ \\
+Llama-3.2-3B & 31.38 & 31.40 & $+0.02$ \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize * significant (McNemar, Holm-adjusted $p < 0.05$)}
+\end{tabular}
+\end{table}
+
 \subsection{Memory and speed}
-\begin{itemize}
-  \item Weights per GPU and output tokens per second for every run, from \texttt{results/meta/}.
-\end{itemize}
+With 4-bit weights the models take 33--42\% of the GPU memory of their FP16 weights, and with INT8 55--61\%
+(Fig.~\ref{fig:tradeoff}). At batch size 1, GPTQ writes answers fastest, at 1.5 to 2.3 times the speed of FP16; AWQ
+writes at 0.9 to 1.6 times FP16, INT8 is 3 to 7 times slower than FP16, and NF4 is 7 to 15 times slower to the
+first token. Constrained decoding adds about 0.35 to 0.5\,s before the first token, the time to build the grammar,
+and leaves the writing speed about the same. On both axes the knee of the Pareto frontier is Qwen3-4B with 4-bit
+weights: with 2.5\,GiB, Qwen3-4B AWQ (86.98 free, 87.48 constrained) and GPTQ (86.60 free) come within two points
+of the most accurate run of any model (88.42 free, 89.04 constrained), with a third of the memory of Qwen3-4B in
+FP16 (7.6\,GiB) and a sixth of Qwen3-8B in FP16 (15.3\,GiB). Each time is a single run on a shared GPU; one run,
+Llama-3.2-3B in FP16, was slowed down by the GPU and timed again.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{accuracy_memory_latency.png}
+\caption{Overall accuracy against the GPU memory of the weights (left) and the median time for a whole answer at
+batch size 1 (right), free decoding (top) and constrained decoding (bottom). The line is the Pareto frontier. The
+hollow point is a timing the GPU slowed down.}\label{fig:tradeoff}
+\end{figure*}
 
 \section{Discussion}
-\textit{Update 15.}
-\begin{itemize}
-  \item For small models, format habits decide much of the score, and quantization changes those habits in
-        both directions.
-  \item A higher score after quantization (Llama-3.2-3B) comes mostly from better format, not better content.
-  \item What this means for running agents on small quantized models.
-\end{itemize}
+For small models, format habits decide much of the score, and quantization changes those habits in both directions.
+A change in score after quantization is therefore often a change in format, not in what the model knows. Llama-3.2-3B
+is the clearest example: it gains up to 28 points with 4-bit weights because its habit of leaving out the closing
+bracket fades, and under the constraint, which repairs the format of FP16 too, every 4-bit run is below FP16.
+Accuracy alone would rank its GPTQ build as the best of its five precisions; the failure classes show that it is not.
+
+Constrained decoding is a strong repair for format losses, but not a cure. It cannot fix a wrong argument value,
+so the small content losses of the larger Qwen3 models stay. And it can turn a broken answer into a silent
+non-answer: forced to write valid JSON, Llama-3.2-1B NF4 and GPTQ answer with an empty list, which the program
+reads as ``no action needed''. A system that uses constrained decoding should therefore count empty calls, and the
+schema has to allow them, because irrelevance questions need them.
+
+For running agents on small GPUs, our runs suggest three things. First, a 4B model at 4 bits can be a better choice
+than a smaller model at full precision: Qwen3-4B AWQ needs less memory than Qwen3-1.7B in FP16 (2.5 against
+3.2\,GiB) and scores 14 points higher with free decoding (5 with the constraint).
+Second, a quantized build has to be tested on its own, because the same
+method can help one model and hurt another (GPTQ: $+28.14$ for Llama-3.2-3B, $-25.00$ for Llama-3.2-1B). Third, on
+a GPU like the T4, 4-bit GPTQ and AWQ are also the fastest builds, while bitsandbytes INT8, though the gentlest
+on accuracy, is several times slower. In our tests an 8-bit KV cache doubled the room for keys and values at little cost in
+accuracy, but it can strengthen a model's format habits.
 
 \section{Limitations}
-\begin{itemize}
-  \item FP16, not BF16, as the baseline (T4 GPUs); models of 8B or smaller; two model families.
-  \item One run per configuration (greedy decoding); single-turn BFCL questions only.
-  \item One calibration set for GPTQ and AWQ; Qwen3-8B AWQ needed extra settings.
-  \item The schema is very slightly stricter than BFCL's checker (14 of 34,750 correct answers).
-  \item The stress groups are small (25 questions, 6--9 per level); the number group also has an ID argument, and
-        the menu functions have no argument descriptions.
-\end{itemize}
+The baseline is FP16, not BF16, because the T4 does not support BF16. We study models of 8B parameters or fewer from
+two families, on single-turn BFCL questions in prompt mode with a JSON-array answer format; multi-turn and
+native function-calling formats may behave differently. Every configuration is one greedy run, so the tests cover the
+choice of questions, not run-to-run variation. GPTQ and AWQ use one recipe and one calibration set of general web
+text, and Qwen3-8B AWQ needed three extra settings to avoid overflow on the T4. Our schema is very slightly stricter
+than BFCL's checker (14 of 34,750 correct answers fail it). The stress groups have 25 questions each (6 to 9 per
+level), so only large changes are significant; the number group also contains an ID argument, and the menu functions
+have no argument descriptions. The 8-bit KV cache uses a scale of 1.0, runs only in free decoding, and is tested on
+prompts of at most about 3,700 tokens. The latency numbers are single runs at batch size 1 on shared Kaggle GPUs,
+whose speed can change during a session, and they depend on the kernels that vLLM 0.8.5 offers for the T4.
 
 \section{Conclusion}
-\textit{Update 15.}
-\begin{itemize}
-  \item Answers to RQ1--RQ4 in one paragraph each; the practical advice.
-\end{itemize}
+Quantization changes the function calls of large and small models very differently. Qwen3-4B and Qwen3-8B stay
+within 2.35 points of FP16 at every precision, while the three smaller models move by up to 33 points, in both
+directions (RQ1). In the small models most of that change is in format, through habits each model already has; the
+larger models fail mostly on argument values (RQ2). Constrained decoding removes a quantization loss when it is a
+format error over the right content, leaves content losses unchanged, and can make a loss larger when the model
+falls back to no call (RQ3). No schema feature breaks across the board; the weak spots of the small models are
+already there at FP16 (RQ4). An 8-bit KV cache barely changes accuracy, and Qwen3-4B with 4-bit weights gives the
+best balance of accuracy, memory and speed. In practice: test each quantized build on its own, consider a larger model
+at 4 bits before a smaller one at full precision, use constrained decoding, and count the calls it turns into empty
+answers. Code, configurations and results are in the project repository.
 
 \section*{References}
 \textit{To be added as BibTeX (Update 16): BFCL, ToolScan, ACBench, Less is More, TinyAgent, Jang et al.,

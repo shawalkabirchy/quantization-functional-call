@@ -5,6 +5,32 @@ meeting.
 
 ---
 
+## Update 15: Experiments frozen; full paper body
+Planned: Mon 23 Nov · Pushed: Sat 21 Nov
+
+**Done:**
+- Experiments frozen: no new runs after Update 13; everything from here uses the results already in
+  [`results/`](results/)
+- Paper ([`paper/main.tex`](paper/main.tex)): Results for RQ1-RQ4, the 8-bit KV cache and memory and speed, written
+  as text; the main table now shows free and constrained decoding; new table for the KV cache and the
+  accuracy vs. memory and latency figure; Discussion, Limitations, Conclusion and the abstract written. Only the
+  references are left (Update 16)
+- All six figures drawn again from one script ([`src/figures.py`](src/figures.py)): each is identical to the
+  committed one. Every number in the paper's two accuracy tables was checked against
+  [`results/summary.csv`](results/summary.csv) by a script (15 rows, no difference)
+
+**Result:** the paper now states the main message in one place: for small models, quantization mostly changes
+format habits; constrained decoding removes format losses but not content losses, and can turn a broken answer into
+no call; Qwen3-4B with 4-bit weights is the best balance of accuracy, memory and speed.
+
+**Problem:** the paper is built on Overleaf, not in the repository; this update has not been compiled yet. The
+practical advice in the Discussion rests on five models from two families.
+
+**Next (Update 16, planned Wed 25 Nov):** full draft to the supervisor: references as BibTeX, title, every number
+checked against `results/`, proofreading.
+
+---
+
 ## Update 14: Accuracy vs. memory and latency; Method section
 Planned: Wed 18 Nov · Pushed: Sat 21 Nov
 

@@ -34,7 +34,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 14 (Wed 18 Nov):** accuracy vs. memory and latency curve; Method section (pushed Sat 21 Nov)
 
 ## Week 8 (22-28 Nov): Freeze and full draft
-- [ ] **Update 15 (Mon 23 Nov):** experiments frozen (22 Nov); all figures final; Results, Discussion, Limitations
+- [x] **Update 15 (Mon 23 Nov):** experiments frozen (22 Nov); all figures final; Results, Discussion, Limitations (pushed Sat 21 Nov)
 - [ ] **Update 16 (Wed 25 Nov):** full paper draft to supervisor
 
 ## Week 9 (29 Nov - 2 Dec): Revisions and release
