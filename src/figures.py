@@ -4,6 +4,7 @@ Usage (from the repository root):
     python src/figures.py taxonomy --mode free
     python src/figures.py penalty --mode free     # needs results/significance_<mode>.csv (src/significance.py)
     python src/figures.py gap                     # needs results/gap.csv (src/gap.py); free and constrained
+    python src/figures.py tradeoff                # needs results/latency.csv (src/latency_table.py)
 """
 
 import argparse
@@ -15,6 +16,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 
 from main_table import MODELS, PRECISIONS, REPO
 
@@ -171,13 +173,98 @@ def gap(mode, results_dir):
     print(f"Saved {out}")
 
 
+# The precisions above plus FP16, validated as one adjacent set in this order (dataviz palette validator)
+TRADEOFF_COLORS = {"FP16": "#e87ba4", **PRECISION_COLORS}
+MODEL_MARKERS = {"qwen3-1.7b": "o", "qwen3-4b": "s", "qwen3-8b": "D", "llama-3.2-1b": "^", "llama-3.2-3b": "v"}
+
+
+def frontier(points):
+    """The Pareto frontier: points that no other point beats on both axes (smaller x and higher y)."""
+    best, kept = -1.0, []
+    for x, y, key in sorted(points, key=lambda p: (p[0], -p[1])):
+        if y > best:
+            kept.append((x, y, key))
+            best = y
+    return kept
+
+
+def tradeoff(mode, results_dir):
+    """Overall accuracy against the memory the weights take and against the time to answer at batch size 1."""
+    with open(results_dir / "summary.csv", newline="", encoding="utf-8") as f:
+        accuracy = {r["run_id"]: float(r["accuracy"]) for r in csv.DictReader(f) if r["category"] == "non_live_overall"}
+    with open(results_dir / "latency.csv", newline="", encoding="utf-8") as f:
+        latency = {(r["model"], r["precision"], r["mode"]): r for r in csv.DictReader(f)}
+
+    fig, axes = plt.subplots(2, 2, figsize=(9, 7.6), facecolor=SURFACE, sharey=True)
+    measures = [("Memory for the weights (GiB, all GPUs)", lambda r: float(r["weights_gib_per_gpu"]) * int(r["gpus"])),
+                ("Time for the whole answer at batch size 1 (s, median)", lambda r: float(r["total_s_median"]))]
+    for row, decoding in enumerate(["free", "constrained"]):
+        for col, (xlabel, measure) in enumerate(measures):
+            ax = axes[row, col]
+            ax.set_facecolor(SURFACE)
+            points = []
+            for model, name in MODELS.items():
+                for precision, label in PRECISIONS.items():
+                    r = latency.get((name, label, decoding))
+                    acc = accuracy.get(f"{model}_{precision}_{decoding}")
+                    if r is None or acc is None:
+                        continue
+                    x = measure(r)
+                    # Llama-3.2-3B FP16 constrained: the GPU slowed down during that timing (results/latency.md)
+                    unreliable = col == 1 and decoding == "constrained" and model == "llama-3.2-3b" and precision == "fp16"
+                    ax.plot(x, acc, MODEL_MARKERS[model], markersize=8, zorder=3,
+                            markerfacecolor=SURFACE if unreliable else TRADEOFF_COLORS[label],
+                            markeredgecolor=TRADEOFF_COLORS[label] if unreliable else INK,
+                            markeredgewidth=1.6 if unreliable else 0.6)
+                    if not unreliable:
+                        points.append((x, acc, (name, label)))
+            best = frontier(points)
+            ax.plot([p[0] for p in best], [p[1] for p in best], color=INK, linewidth=1, zorder=2,
+                    drawstyle="steps-post")
+            # Label one point: the cheapest (or fastest) one within 2 points of the most accurate
+            top = max(y for _, y, _ in points)
+            x, y, (name, label) = min((p for p in points if p[1] >= top - 2), key=lambda p: (p[0], -p[1]))
+            ax.annotate(f"{name.replace('-Instruct', '')} {label}", (x, y), xytext=(0, 10), ha="center",
+                        textcoords="offset points", fontsize=7.5, color=INK)
+            ax.set_xscale("log")
+            ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+            ax.set_ylim(0, 100)
+            ax.grid(color=GRID, linewidth=0.8)
+            ax.set_axisbelow(True)
+            ax.tick_params(length=0, colors=MUTED, labelsize=8)
+            for side in ax.spines.values():
+                side.set_visible(False)
+            if row == 1:
+                ax.set_xlabel(xlabel, fontsize=9, color=MUTED)
+            if col == 0:
+                ax.set_ylabel(f"Overall accuracy (%), {decoding} decoding", fontsize=9, color=MUTED)
+    for ax in axes[:, 0]:
+        ax.set_xticks([1, 2, 4, 8, 16], ["1", "2", "4", "8", "16"])
+    for ax in axes[:, 1]:
+        ax.set_xticks([0.5, 1, 2, 4, 8], ["0.5", "1", "2", "4", "8"])
+    handles = [plt.Line2D([], [], linestyle="none", marker="o", markersize=8, color=c, markeredgecolor=INK,
+                          markeredgewidth=0.6) for c in TRADEOFF_COLORS.values()]
+    handles += [plt.Line2D([], [], linestyle="none", marker=m, markersize=7, color=MUTED) for m in MODEL_MARKERS.values()]
+    labels = list(TRADEOFF_COLORS) + [MODELS[m].replace("-Instruct", "") for m in MODEL_MARKERS]
+    fig.legend(handles, labels, loc="upper center", ncol=5, frameon=False, fontsize=8.5, labelcolor=INK,
+               bbox_to_anchor=(0.53, 0.995), handlelength=1.2, columnspacing=1.4)
+    fig.text(0.99, 0.01, "Line: the Pareto frontier (no other point is both smaller or faster and more accurate). Labelled: "
+             "the first point within 2 points of the best. Hollow: unreliable timing.", ha="right", va="bottom", fontsize=7, color=MUTED)
+    fig.subplots_adjust(left=0.09, right=0.98, top=0.89, bottom=0.1, hspace=0.12, wspace=0.06)
+
+    out = results_dir / "figures" / "accuracy_memory_latency.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200)
+    print(f"Saved {out}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("figure", choices=["taxonomy", "penalty", "gap"])
+    parser.add_argument("figure", choices=["taxonomy", "penalty", "gap", "tradeoff"])
     parser.add_argument("--mode", default="free", choices=["free", "constrained"])
     parser.add_argument("--results-dir", type=Path, default=REPO / "results")
     args = parser.parse_args()
-    {"taxonomy": taxonomy, "penalty": penalty, "gap": gap}[args.figure](args.mode, args.results_dir)
+    {"taxonomy": taxonomy, "penalty": penalty, "gap": gap, "tradeoff": tradeoff}[args.figure](args.mode, args.results_dir)
 
 
 if __name__ == "__main__":

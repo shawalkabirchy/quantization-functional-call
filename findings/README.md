@@ -2,7 +2,7 @@
 
 The main results of the project so far, in one place.
 
-**State:** after Update 13 (Sat 21 Nov 2026). Every number comes from the files in [`results/`](../results/),
+**State:** after Update 14 (Sat 21 Nov 2026). Every number comes from the files in [`results/`](../results/),
 linked under each finding. Full score tables: [`score_changes.md`](score_changes.md). Answers to the four research
 questions: [`research_questions/`](../research_questions/README.md).
 
@@ -158,6 +158,15 @@ slower to the first token. Constrained decoding adds about 0.35 to 0.5 s before 
 writing speed about the same. Qwen3-8B in FP16 runs on two T4s; every other config on one.
 
 Evidence: [latency tables](../results/latency.md), [all values](../results/latency.csv)
+
+### 13. Best trade-off: Qwen3-4B with 4-bit weights
+
+On accuracy against memory and against time per answer, Qwen3-4B AWQ and GPTQ (2.5 GiB of weights) come within 2
+points (AWQ: 1.6) of the most accurate run of any model, with a third of the memory of Qwen3-4B in FP16 and a sixth of
+Qwen3-8B in FP16. This holds in free and in constrained decoding.
+
+Evidence: [figure](../results/figures/accuracy_memory_latency.png), [latency tables](../results/latency.md),
+[main table](../results/main_table.md)
 
 ---
 

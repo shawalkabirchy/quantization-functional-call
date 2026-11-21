@@ -1,5 +1,5 @@
 % Paper outline (Update 8): every section in bullet points. The text is written in later updates
-% (Setup in Update 9, Introduction in Update 11, Related Work in Update 12, Method in Update 13,
+% (Setup in Update 9, Introduction in Update 11, Related Work in Update 12, Method in Update 14,
 % the rest in Update 15). Numbers come from results/; check them again before the final version.
 %
 % Build: from this folder, e.g. `tectonic main.tex` or `pdflatex main.tex`.
@@ -196,26 +196,79 @@ and no extra arguments. The prompt is the same in both modes, so the constraint 
 difference.
 
 \section{Method}\label{sec:method}
-\textit{Drafted in Update 13.}
-\begin{itemize}
-  \item Failure classes: S1 not valid JSON, S2 does not match the schema (syntactic); M1 wrong function,
-        M2 wrong argument value, M3 wrong number of calls, M4 call on an irrelevance question, M5 no call
-        (semantic). Checked in this order; the schema is the one constrained decoding enforces.
-  \item Hand check: two random samples of 40 failures; the final classifier agrees on all 80.
-  \item Statistics: McNemar's exact test on the 1,150 AST questions, paired by question, with Holm's
-        correction over the 20 comparisons; bootstrap 95\% intervals for the change in Overall
-        (10,000 resamples inside each category).
-  \item Constrained-decoding gap: the penalty (change from FP16 of the same model and mode) in free and in
-        constrained mode; their difference with a bootstrap 95\% interval (the same resampled questions for all
-        four runs); and, for the significant free losses, the share of the loss removed.
-  \item Schema-stress suite: made from templates with fixed seeds by \texttt{src/stress\_suite.py}; each question
-        has one correct call, with every value stated in the question; the answer keys are checked to accept
-        the correct call and reject 220 wrong ones; scored with BFCL's checker, like the main questions.
-  \item Stress-suite analysis: accuracy per group and level; the failure classes above, plus whether a wrong value
-        is in the stressed argument and whether an invalid answer is right once only its closing brackets are fixed;
-        McNemar's exact test per group against FP16 of the same model and mode, with Holm's correction over the 140
-        tests of each mode.
-\end{itemize}
+% Written in Update 14. Code: src/taxonomy.py, src/significance.py, src/gap.py, src/stress_suite.py,
+% src/stress_analysis.py, src/kv_cache.py, src/latency.py.
+
+\subsection{Failure classes}
+Every wrong answer gets one of seven classes (Table~\ref{tab:classes}). An answer is \emph{syntactic}
+when it is not valid JSON (S1) or does not match the JSON schema of the question's functions (S2): a
+wrong type, a value outside an enum, an undefined function or argument, or a missing required
+argument. The schema is the one that constrained decoding enforces, so a constrained answer can only
+fail semantically. An answer that matches the schema but fails BFCL's checker is \emph{semantic}:
+a wrong function (M1), a wrong argument value (M2), a wrong number of calls (M3), a call on an
+irrelevance question (M4) or no call where one was needed (M5). The checks run in that order, so
+each answer has exactly one class. Two random samples of 40 failures were classified by hand; the
+final classifier agrees with the hand labels on all 80.
+
+\begin{table}[t]
+\centering
+\caption{Failure classes}\label{tab:classes}
+\begin{tabular}{lll}
+\toprule
+Class & Kind & The answer \ldots \\
+\midrule
+S1 & syntactic & is not valid JSON \\
+S2 & syntactic & does not match the schema \\
+M1 & semantic & calls a wrong function \\
+M2 & semantic & has a wrong argument value \\
+M3 & semantic & has a wrong number of calls \\
+M4 & semantic & calls a function where none fits \\
+M5 & semantic & makes no call where one is needed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Statistics}
+All comparisons are paired by question: each quantized run is compared with FP16 of the same model
+in the same decoding mode. McNemar's exact test on the 1,150 AST questions asks whether the change
+is real; it uses only the questions that one run got right and the other wrong. Holm's correction
+covers the 20 comparisons of each mode. A bootstrap 95\% interval (10,000 resamples, drawn inside
+each category, Overall computed as in BFCL) gives the size of the change. Irrelevance accuracy is
+reported apart, as in BFCL. All runs are single greedy runs, so the tests cover the choice of
+questions, not run-to-run noise.
+
+\subsection{How much the constraint removes}
+For each model and precision we compute the penalty (the change from FP16) in free and in
+constrained mode, and their difference, with a bootstrap 95\% interval that resamples the same
+questions for all four runs. For each significant free loss we report the share of the loss that
+the constraint removes: one minus the constrained penalty divided by the free penalty.
+
+\subsection{Schema-stress suite}
+The suite has seven groups of 25 questions: a plain control group and six groups that each stress one
+schema feature (objects nested up to three levels, enums of up to 30 codes, integers next to floats,
+optional arguments, non-ASCII strings, and a menu of 50 functions). A script with fixed seeds makes
+every question from templates; each question has one correct call, and every value is stated in the
+question. The answer keys were checked to accept the correct call and reject 220 wrong ones, and
+answers are scored with BFCL's checker, like the main questions. For each group we report accuracy
+by level, the failure classes, whether a wrong value sits in the stressed argument, and whether an
+invalid answer is right once only its closing brackets are fixed (a diagnostic; scores repair
+nothing). McNemar's exact test compares each group with FP16 of the same model and mode, with Holm's
+correction over the 140 tests of each mode.
+
+\subsection{8-bit KV cache}
+As an additional setting, the five FP16 models answer the BFCL questions and the stress suite in free
+mode with the KV cache stored in 8 bits (FP8 E4M3, scale 1.0) instead of 16. The weights, prompts
+and decoding are unchanged, so any difference comes from the KV cache. The tests are those above,
+with Holm's correction over the five models (BFCL) or the 35 groups (stress suite).
+
+\subsection{Latency and memory}
+Each configuration is loaded on its own and answers the same 35 BFCL questions (five per category,
+chosen with a fixed seed) one at a time, after three untimed warm-up questions, first in free and
+then in constrained mode, with the prompts, decoding and checkpoints of the main runs. We report
+medians of the time to the first token, the time per answer token after the first, and the time
+for the whole answer. Memory is the GPU memory the weights take after loading, as vLLM reports it.
+A configuration lies on the Pareto frontier when no other configuration is both smaller (or faster)
+and more accurate.
 
 \section{Results}\label{sec:results}
 \subsection{Accuracy by precision and model size (RQ1)}

@@ -31,7 +31,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 
 ## Week 7 (15-21 Nov): Stretch item and accuracy per gigabyte
 - [x] **Update 13 (Mon 16 Nov):** one stretch item; latency benchmark (stretch item: 8-bit KV cache; pushed Sat 21 Nov)
-- [ ] **Update 14 (Wed 18 Nov):** accuracy vs. memory and latency curve; Method section
+- [x] **Update 14 (Wed 18 Nov):** accuracy vs. memory and latency curve; Method section (pushed Sat 21 Nov)
 
 ## Week 8 (22-28 Nov): Freeze and full draft
 - [ ] **Update 15 (Mon 23 Nov):** experiments frozen (22 Nov); all figures final; Results, Discussion, Limitations

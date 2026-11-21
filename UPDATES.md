@@ -5,6 +5,30 @@ meeting.
 
 ---
 
+## Update 14: Accuracy vs. memory and latency; Method section
+Planned: Wed 18 Nov · Pushed: Sat 21 Nov
+
+**Done:**
+- One figure with Overall accuracy against the memory the weights take and against the time for a whole answer
+  at batch size 1, for free and constrained decoding, with the Pareto frontier
+  ([figure](results/figures/accuracy_memory_latency.png), `python src/figures.py tradeoff`). No new GPU runs: the
+  accuracy comes from the main runs, memory and time from Update 13
+- Paper ([`paper/main.tex`](paper/main.tex)): the Method section written as text (failure classes with a table,
+  statistics, how much the constraint removes, the stress suite, the 8-bit KV cache, latency and memory)
+
+**Result:** in all four panels the same kind of point marks the knee of the frontier: Qwen3-4B with 4-bit weights.
+With 2.5 GiB of weights, Qwen3-4B AWQ (86.98 free, 87.48 constrained) and GPTQ (86.60 free) come within 2 points (AWQ:
+1.6) of the most accurate run of any model (88.42 free, 89.04 constrained), with a third of the memory of Qwen3-4B in
+FP16 (7.6 GiB) and a sixth of Qwen3-8B in FP16 (15.3 GiB). Below about 2 GiB only the small models fit, and their
+accuracy depends on the method: Qwen3-1.7B AWQ is the best of them (75.94 free, 80.81 constrained at 1.3 GiB).
+
+**Problem:** the paper was not compiled in this update; its LaTeX structure was checked by a script (braces,
+environments, references). The memory axis shows the weights only; the KV cache fills whatever memory is left.
+
+**Next (Update 15, planned Mon 23 Nov):** experiments frozen; all figures final; Results, Discussion and Limitations.
+
+---
+
 ## Update 13: 8-bit KV cache (stretch item); latency benchmark
 Planned: Mon 16 Nov · Pushed: Sat 21 Nov
 
