@@ -1,0 +1,152 @@
+{
+  "config_file": "configs/qwen3-8b_nf4.yaml",
+  "config": {
+    "model": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "precision": "nf4",
+    "dtype": "half",
+    "quantization": "bitsandbytes",
+    "tensor_parallel_size": 1,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": -1,
+      "min_p": 0.0,
+      "repetition_penalty": 1.0,
+      "seed": 42,
+      "max_tokens": 4096
+    }
+  },
+  "model": "Qwen/Qwen3-8B",
+  "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "precision": "nf4",
+  "quantized_checkpoint": null,
+  "kv_cache_dtype": "auto",
+  "tensor_parallel_size": 1,
+  "guided_decoding_backend": "xgrammar:disable-any-whitespace,no-fallback",
+  "prompt_format": "json-array-v1",
+  "batch_size": 1,
+  "sample": {
+    "per_category": 5,
+    "seed": 42,
+    "ids": [
+      "simple_python_327",
+      "simple_python_57",
+      "simple_python_12",
+      "simple_python_379",
+      "simple_python_140",
+      "simple_java_31",
+      "simple_java_28",
+      "simple_java_17",
+      "simple_java_94",
+      "simple_java_13",
+      "simple_javascript_43",
+      "simple_javascript_47",
+      "simple_javascript_34",
+      "simple_javascript_5",
+      "simple_javascript_37",
+      "multiple_108",
+      "multiple_8",
+      "multiple_7",
+      "multiple_23",
+      "multiple_55",
+      "parallel_59",
+      "parallel_129",
+      "parallel_154",
+      "parallel_6",
+      "parallel_143",
+      "parallel_multiple_50",
+      "parallel_multiple_183",
+      "parallel_multiple_166",
+      "parallel_multiple_179",
+      "parallel_multiple_139",
+      "irrelevance_107",
+      "irrelevance_56",
+      "irrelevance_114",
+      "irrelevance_150",
+      "irrelevance_71"
+    ]
+  },
+  "warmup_ids": [
+    "simple_python_0",
+    "multiple_0",
+    "parallel_0"
+  ],
+  "sampling_params": "SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=-1, min_p=0.0, seed=42, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=4096, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None)",
+  "started_utc": "2026-11-16T22:21:25+00:00",
+  "finished_utc": "2026-11-16T22:35:06+00:00",
+  "model_load_seconds": 207.2,
+  "summary": {
+    "free": {
+      "n_questions": 35,
+      "first_token_ms_median": 2906.8,
+      "first_token_ms_p90": 5244.8,
+      "per_token_ms_median": 75.05,
+      "output_tokens_per_second": 13.3,
+      "total_s_median": 5.857,
+      "total_s_p90": 16.642,
+      "total_s_sum": 277.7,
+      "output_tokens_mean": 61.4,
+      "finish_reasons": {
+        "stop": 35
+      }
+    },
+    "constrained": {
+      "n_questions": 35,
+      "first_token_ms_median": 3149.8,
+      "first_token_ms_p90": 5507.9,
+      "per_token_ms_median": 75.23,
+      "output_tokens_per_second": 13.3,
+      "total_s_median": 6.094,
+      "total_s_p90": 16.36,
+      "total_s_sum": 284.2,
+      "output_tokens_mean": 60.3,
+      "finish_reasons": {
+        "stop": 35
+      }
+    }
+  },
+  "memory": {
+    "model_weights_gib": 5.6681,
+    "activation_peak_gib": 1.45,
+    "kv_cache_gib": 5.94,
+    "kv_cache_blocks": 2704,
+    "max_concurrency": 5.28,
+    "gpus_after_run": [
+      {
+        "index": 0,
+        "used_mib": 13905,
+        "total_mib": 15360
+      },
+      {
+        "index": 1,
+        "used_mib": 3,
+        "total_mib": 15360
+      }
+    ]
+  },
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "versions": {
+    "python": "3.11.18",
+    "vllm": "0.8.5",
+    "torch": "2.6.0",
+    "transformers": "4.51.3",
+    "bfcl-eval": "2026.3.23",
+    "xgrammar": "0.1.18",
+    "bitsandbytes": "0.45.5",
+    "accelerate": "1.6.0",
+    "gptqmodel": null
+  },
+  "code": {
+    "commit": "cdd3e35755580fe245467aa39a9f7a08c70c5ebc",
+    "uncommitted_changes": false
+  }
+}

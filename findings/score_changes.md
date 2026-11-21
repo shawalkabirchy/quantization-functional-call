@@ -1,6 +1,6 @@
 # Score Changes
 
-How the scores change with precision and decoding mode, in one place. **State:** after Update 12 (Wed 11 Nov 2026).
+How the scores change with precision and decoding mode, in one place. **State:** after Update 13 (Sat 21 Nov 2026).
 
 Score = BFCL's Non-Live Overall accuracy (%) on the 1,390 `non_live` questions. Change = quantized minus FP16 of the
 same model in the same decoding mode, in points. **Bold** = significant (McNemar's exact test on the 1,150 AST
@@ -89,6 +89,21 @@ Correct answers out of 25 in the group. Holm's correction is over the 140 tests 
 | Llama-3.2-1B-Instruct | AWQ | constrained | Menu | 6 | 20 |
 
 All counts per group and level: [`stress.md`](../results/stress.md), [`stress_accuracy.csv`](../results/stress_accuracy.csv).
+
+## 7. 8-bit KV cache: change from FP16 (free decoding)
+
+Same FP16 weights; only the KV cache is in 8 bits. Holm's correction is over the five models.
+
+| Model | FP16 | 8-bit KV | Change |
+|---|---:|---:|---:|
+| Qwen3-1.7B | 72.56 | 71.83 | **-0.73** |
+| Qwen3-4B | 88.04 | 87.29 | -0.75 |
+| Qwen3-8B | 88.29 | 88.58 | +0.29 |
+| Llama-3.2-1B-Instruct | 36.40 | 34.98 | -1.42 |
+| Llama-3.2-3B-Instruct | 31.38 | 31.40 | +0.02 |
+
+Qwen3-1.7B's test is significant (58 AST answers lost, 28 gained), although its change in Overall is small and its
+95% interval includes 0. Sources: [`kv_cache.md`](../results/kv_cache.md), [`kv_cache.csv`](../results/kv_cache.csv).
 
 ## Irrelevance accuracy
 

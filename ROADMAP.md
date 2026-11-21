@@ -30,7 +30,7 @@ Full plan: [`docs/roadmap.tex`](docs/roadmap.tex)
 - [x] **Update 12 (Wed 11 Nov):** stress-suite results by failure class; Related Work section
 
 ## Week 7 (15-21 Nov): Stretch item and accuracy per gigabyte
-- [ ] **Update 13 (Mon 16 Nov):** one stretch item; latency benchmark
+- [x] **Update 13 (Mon 16 Nov):** one stretch item; latency benchmark (stretch item: 8-bit KV cache; pushed Sat 21 Nov)
 - [ ] **Update 14 (Wed 18 Nov):** accuracy vs. memory and latency curve; Method section
 
 ## Week 8 (22-28 Nov): Freeze and full draft

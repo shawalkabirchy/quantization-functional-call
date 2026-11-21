@@ -2,13 +2,14 @@
 
 The main results of the project so far, in one place.
 
-**State:** after Update 12 (Wed 11 Nov 2026). Every number comes from the files in [`results/`](../results/),
+**State:** after Update 13 (Sat 21 Nov 2026). Every number comes from the files in [`results/`](../results/),
 linked under each finding. Full score tables: [`score_changes.md`](score_changes.md). Answers to the four research
 questions: [`research_questions/`](../research_questions/README.md).
 
 **Setup in short:** 5 models (Qwen3-1.7B, 4B, 8B; Llama-3.2-1B, 3B-Instruct) × 5 precisions (FP16, INT8, NF4,
 GPTQ, AWQ) × 2 decoding modes (free, JSON-schema-constrained) = 50 runs on the 1,390 BFCL `non_live` questions,
-and 50 more runs on our 175-question schema-stress suite. Score = BFCL's Non-Live Overall accuracy (%).
+and 50 more runs on our 175-question schema-stress suite. Update 13 added the five FP16 models with an 8-bit KV
+cache (stretch item) and a latency benchmark of all 30 configs. Score = BFCL's Non-Live Overall accuracy (%).
 "Significant" = McNemar's exact test, paired by question, Holm-adjusted p < 0.05.
 
 ---
@@ -131,6 +132,32 @@ Evidence: [stress-suite report](../results/stress.md), [accuracy](../results/str
 Only 7 of the 280 stress-suite changes pass Holm's correction.
 
 Evidence: [stress-suite report](../results/stress.md), [tests](../results/stress_significance.csv)
+
+### 11. An 8-bit KV cache barely changes function calling (stretch item)
+
+With the same FP16 weights and the KV cache in 8 bits (FP8 E4M3), four of the five models change by -1.42 to +0.29
+points, none significantly, and no stress-suite group changes significantly. Only Qwen3-1.7B changes significantly
+(58 AST answers lost, 28 gained), through its old format habit: answers with one `}` too many rise from 75 to 102,
+and 42 of its new invalid-JSON answers are right once that brace is removed. The same memory holds twice as many
+tokens of keys and values; on the T4, which has no FP8 hardware, writing is 14% to 23% slower.
+
+Evidence: [KV-cache report](../results/kv_cache.md), [tests](../results/kv_cache.csv)
+
+### 12. Speed at batch size 1: GPTQ fastest, INT8 slowest
+
+| Tokens per second, free decoding | FP16 | INT8 | NF4 | GPTQ | AWQ |
+|---|---:|---:|---:|---:|---:|
+| Qwen3-1.7B | 52.9 | 7.3 | 47.4 | 101.4 | 80.3 |
+| Qwen3-4B | 25.2 | 6.1 | 21.6 | 58.9 | 41.1 |
+| Qwen3-8B | 25.7 | 6.1 | 13.3 | 38.5 | 24.2 |
+| Llama-3.2-1B-Instruct | 79.9 | 17.4 | 67.0 | 148.6 | 108.2 |
+| Llama-3.2-3B-Instruct | 34.2 | 10.2 | 28.5 | 76.6 | 43.4 |
+
+GPTQ writes 1.5 to 2.3 times as fast as FP16, and INT8 (bitsandbytes) 3 to 7 times slower. NF4 is 7 to 15 times
+slower to the first token. Constrained decoding adds about 0.35 to 0.5 s before the first token and leaves the
+writing speed about the same. Qwen3-8B in FP16 runs on two T4s; every other config on one.
+
+Evidence: [latency tables](../results/latency.md), [all values](../results/latency.csv)
 
 ---
 

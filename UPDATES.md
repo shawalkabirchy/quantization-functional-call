@@ -5,6 +5,45 @@ meeting.
 
 ---
 
+## Update 13: 8-bit KV cache (stretch item); latency benchmark
+Planned: Mon 16 Nov · Pushed: Sat 21 Nov
+
+**Done:**
+- Stretch item: the five FP16 models answered BFCL's 1,390 questions and the stress suite again with an 8-bit KV
+  cache (FP8 E4M3 in vLLM), in free decoding. Weights, prompts and decoding are those of the FP16 runs, so only the
+  KV cache changes. Tested against FP16 as in Updates 7, 8 and 12 ([`src/kv_cache.py`](src/kv_cache.py),
+  [report](results/kv_cache.md), [tests](results/kv_cache.csv), [stress tests](results/kv_cache_stress.csv))
+- Latency at batch size 1 for all 30 configs (the 25 main ones and the 5 with the 8-bit KV cache): the same 35
+  questions one at a time, in free and constrained decoding ([`src/latency.py`](src/latency.py),
+  [tables](results/latency.md), [all values](results/latency.csv))
+- Both ran on Kaggle in two parts ([A](notebooks/08_kv_latency_run_A.ipynb), [B](notebooks/08_kv_latency_run_B.ipynb),
+  4.5 GPU hours, plus a short re-run of one model), and every step finished. Every answer was scored again on a PC with the same result, and every
+  prompt is the same as in the main runs
+
+**Result:** the 8-bit KV cache leaves four of the five models unchanged (-1.42 to +0.29 points, none significant).
+Only Qwen3-1.7B changes significantly: it loses 58 AST answers and gains 28, mostly through its old habit of one
+`}` too many (75 such answers at FP16, 102 with the 8-bit KV cache); 42 of its new invalid-JSON answers are right
+once that brace is removed. No stress-suite group changes significantly. The same memory holds twice as many tokens
+of keys and values, but writing is 14% to 23% slower on the T4, which has no FP8 hardware.
+
+| Batch size 1, free decoding | FP16 | INT8 | NF4 | GPTQ | AWQ |
+|---|---:|---:|---:|---:|---:|
+| Tokens per second, Qwen3-4B | 25.2 | 6.1 | 21.6 | 58.9 | 41.1 |
+| Time to the first token (ms), Qwen3-4B | 181 | 394 | 1,512 | 220 | 305 |
+
+The pattern holds for all five models: GPTQ writes fastest (1.5 to 2.3 times FP16), INT8 (bitsandbytes) slowest
+(3 to 7 times slower than FP16), and NF4 is 7 to 15 times slower to the first token. Constrained decoding adds
+about 0.35 to 0.5 s before the first token (building the grammar) and leaves the writing speed about the same.
+
+**Problem:** the first timing of Llama-3.2-3B FP16 was three times too slow, with the same answers, so the GPU was
+slow, not the model; it was timed again on 21 Nov, and the GPU also slowed down during part of that run. With one
+run per config, differences of about 20% or less are not meaningful. The 8-bit KV cache was not run with
+constrained decoding.
+
+**Next (Update 14, planned Wed 18 Nov):** accuracy vs. memory and latency curve; Method section.
+
+---
+
 ## Update 12: Schema-stress results; Related Work
 Planned: Wed 11 Nov · Pushed: Tue 10 Nov
 

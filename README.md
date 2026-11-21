@@ -3,7 +3,7 @@
 **How Quantization Degrades Function Calling and Structured Output in Small LLMs**
 
 CSE498R Directed Research · Supervisor: Dr. Mohammad Shifat-E-Rabbi
-**Status:** Week 6 of 9: quantization sweep, failure classifier, significance tests, constrained runs, the free vs. constrained comparison and the schema-stress results done; Related Work drafted · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
+**Status:** Week 7 of 9: quantization sweep, failure classifier, significance tests, constrained runs, the free vs. constrained comparison, the schema-stress results, the 8-bit KV cache (stretch item) and the latency benchmark done; Related Work drafted · [Progress log](UPDATES.md) · [Roadmap](ROADMAP.md)
 
 ---
 
@@ -95,6 +95,9 @@ python src/figures.py penalty --mode free                               # change
 python src/gap.py                                                       # free vs. constrained -> results/gap.csv
 python src/figures.py gap                                               # both changes from FP16 in one figure
 python src/stress_analysis.py                                           # stress suite -> results/stress_*.csv
+python src/kv_cache.py                                                  # 8-bit KV cache vs. FP16 -> results/kv_cache*.csv
+python src/latency.py --config configs/qwen3-4b_awq.yaml                # batch-size-1 latency -> results/latency/
+python src/latency_table.py                                             # latency tables -> results/latency.md
 ```
 
 `--mode constrained` forces every answer to match the functions' JSON schema. `--categories stress` runs

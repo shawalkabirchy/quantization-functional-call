@@ -2,7 +2,7 @@
 
 The four research questions of the project and the answers we have so far.
 
-**State:** after Update 12 (Wed 11 Nov 2026). RQ1 to RQ4 all have answers from finished runs. The answers may still
+**State:** after Update 13 (Sat 21 Nov 2026). RQ1 to RQ4 all have answers from finished runs. The answers may still
 be refined before the final paper (Update 18). Main findings in one list: [`findings/`](../findings/README.md).
 
 **Setup in short:** 5 models (Qwen3-1.7B, 4B, 8B; Llama-3.2-1B, 3B-Instruct) × 5 precisions (FP16, INT8, NF4,
@@ -32,6 +32,9 @@ paired by question, Holm-adjusted p < 0.05.
 - **Method:** INT8 is the gentlest (a significant change only for Qwen3-1.7B, -3.14). GPTQ gives the largest drop
   for three of the five models with free decoding, and for four of the five with constrained decoding.
 - **In total,** 11 of the 20 changes from FP16 are significant.
+- **KV cache (stretch item, Update 13):** keeping the FP16 weights and storing only the KV cache in 8 bits changes
+  four of the five models by at most 1.42 points (none significant). Qwen3-1.7B changes significantly through more
+  format errors (one `}` too many).
 
 | Change from FP16, free decoding (points) | INT8 | NF4 | GPTQ | AWQ |
 |---|---:|---:|---:|---:|
@@ -44,7 +47,8 @@ paired by question, Holm-adjusted p < 0.05.
 **Bold** = significant.
 
 **Evidence:** [main table](../results/main_table.md), [significance tests](../results/significance_free.md),
-[figure](../results/figures/penalty_by_size_free.png) (Updates 4-8)
+[figure](../results/figures/penalty_by_size_free.png) (Updates 4-8), [KV-cache report](../results/kv_cache.md)
+(Update 13)
 
 ---
 
