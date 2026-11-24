@@ -30,7 +30,7 @@ grammar-constrained decoding, removes the failures that matter.
 | **RQ4** | Which schema features (nesting, enums, integer vs. float, optional fields, unicode, large tool menus) break first? |
 
 Answers so far: [`research_questions/`](research_questions/README.md). Main findings and score changes:
-[`findings/`](findings/README.md).
+[`findings/`](findings/README.md). Every score in one place: [`final_table/`](final_table/README.md).
 
 ## Planned setup
 
@@ -72,6 +72,7 @@ configs/            one config per model x precision
 src/                evaluation, scoring and taxonomy code
 data/stress_suite/  schema-stress suite: 175 questions in 7 groups (made by src/stress_suite.py)
 results/            summary tables and figures
+final_table/        every score of the project in one place (made by src/final_table.py)
 findings/           main findings and score changes, in one place
 research_questions/ the four research questions and their answers so far
 notebooks/          Kaggle notebooks and analysis
@@ -99,6 +100,7 @@ python src/stress_analysis.py                                           # stress
 python src/kv_cache.py                                                  # 8-bit KV cache vs. FP16 -> results/kv_cache*.csv
 python src/latency.py --config configs/qwen3-4b_awq.yaml                # batch-size-1 latency -> results/latency/
 python src/latency_table.py                                             # latency tables -> results/latency.md
+python src/final_table.py                                               # every score in one place -> final_table/
 ```
 
 `--mode constrained` forces every answer to match the functions' JSON schema. `--categories stress` runs
